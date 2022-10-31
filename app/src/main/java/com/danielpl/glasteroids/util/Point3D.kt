@@ -1,4 +1,4 @@
-package com.danielpl.glasteroids
+package com.danielpl.glasteroids.util
 import kotlin.math.abs
 import kotlin.math.sqrt
 

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">GLAsteroids</string>
+    <string name="jukebox_tag">Jukebox</string>
+    <string name="fps_counter">MS PER FRAME: %s </string>
+    <string name="lives_counter">LIVES:%s</string>
+    <string name="level_counter">WAVE:%s</string>
+    <string name="score_counter">SCORE:%s</string>
+    <string name="game_over">GAME OVER!</string>
+    <string name="game_over_instructions">SHOOT TO RETRY</string>
+    <string name="level_successful">WELL DONE</string>
+    <string name="level_successful_instructions">SHOOT TO START NEXT LEVEL</string>
+
+</resources>

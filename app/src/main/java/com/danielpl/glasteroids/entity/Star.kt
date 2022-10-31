@@ -2,6 +2,8 @@ package com.danielpl.glasteroids
 
 import android.graphics.Color
 import android.opengl.GLES20
+import com.danielpl.glasteroids.entity.GLEntity
+import com.danielpl.glasteroids.entity.Mesh
 
 object Dot{
     val mesh = Mesh( floatArrayOf(0f, 0f, 0f), GLES20.GL_POINTS)

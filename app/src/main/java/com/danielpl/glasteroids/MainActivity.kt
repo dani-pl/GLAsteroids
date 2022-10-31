@@ -7,13 +7,28 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.core.view.WindowCompat
+import com.danielpl.glasteroids.gamepad.TouchController
 
 class MainActivity : AppCompatActivity() {
     private lateinit var game: Game
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        game = Game(this)
-        setContentView(game)
+        //game = Game(this)
+        setContentView(R.layout.activity_main)
+        val controls = TouchController(findViewById(R.id.gamepad))
+        game = findViewById<Game>(R.id.game)
+        game.setControls(controls)
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        game.resume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        game.pause()
     }
 
 

@@ -1,7 +1,13 @@
 package com.danielpl.glasteroids
 
+import android.content.res.AssetManager
 import android.opengl.GLES20
 import android.util.Log
+import com.danielpl.glasteroids.entity.COORDS_PER_VERTEX
+import com.danielpl.glasteroids.entity.Mesh
+import com.danielpl.glasteroids.entity.VERTEX_STRIDE
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.nio.FloatBuffer
 
 
@@ -20,6 +26,10 @@ object GLManager {
 
     var MVPMatrixHandle //handle to the model-view-projection matrix
             = 0
+
+    /*
+
+    Now it is read from text file
 
     //shader source code (could be loaded from textfile!)
     private const val vertexShaderCode =
@@ -41,6 +51,8 @@ object GLManager {
             gl_FragColor = color;   // Pass the color directly through the pipeline.
         }
     """
+
+     */
 
     fun checkGLError(func: String?) {
         var error: Int
@@ -70,7 +82,18 @@ object GLManager {
         return handle
     }
 
-    fun buildProgram() {
+    fun buildProgram(assetManager: AssetManager) {
+
+        // read shader code from text files
+        val inputStreamVertex =assetManager.open("shaderCode/vertexShaderCode.txt")
+        val bufferedReaderVertex = BufferedReader(InputStreamReader(inputStreamVertex))
+
+        val inputStreamFragment =assetManager.open("shaderCode/fragmentShaderCode.txt")
+        val bufferedReaderFragment = BufferedReader(InputStreamReader(inputStreamFragment))
+
+        val vertexShaderCode = bufferedReaderVertex.readText()
+        val fragmentShaderCode = bufferedReaderFragment.readText()
+
         val vertex = compileShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
         val fragment = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
         glProgramHandle = linkShaders(vertex, fragment)
@@ -110,11 +133,6 @@ object GLManager {
         0.5f, -0.5f, 0.0f    // bottom right
     )
 
-    fun draw(model: Mesh, color: FloatArray) {
-        setShaderColor(color)
-        uploadMesh(model._vertexBuffer)
-        drawMesh(model._drawMode, model._vertexCount)
-    }
 
     private fun setShaderColor(color: FloatArray) {
         val COUNT = 1
@@ -144,4 +162,5 @@ object GLManager {
         GLES20.glDisableVertexAttribArray(positionAttributeHandle)
         checkGLError("drawMesh")
     }
+
 }
