@@ -23,7 +23,8 @@ object Config {
     const val THRUST = 8f
     const val DRAG = 0.1f
     const val TIME_BETWEEN_SHOTS = 0.25f //seconds. TO DO: game play setting!
-    const val BULLET_COUNT = (TIME_TO_LIVE / TIME_BETWEEN_SHOTS).toInt()+1
+    const val BULLET_COUNT_PLAYER = (TIME_TO_LIVE / TIME_BETWEEN_SHOTS).toInt()+1
+    const val BULLET_COUNT_ENEMY = 1
     const val DEFAULT_MUSIC_VOLUME = 0.6f
     const val DISPLAY_FRAME_COUNTER = 10
     var playerHealth = 3
@@ -44,8 +45,14 @@ object Config {
     val BREAK_APART_MEDIUM_ASTEROID = 2
     val BREAK_APART_LARGE_ASTEROID = 3
 
-    val MAX_POINTS_ASTEROIDS = 9
+    val MAX_POINTS_ASTEROIDS = 8
     val MIN_POINTS_ASTEROIDS = 3
+
+    const val INITIAL_LINE_WIDTH = 10f
+    const val INITIAL_POINT_SIZE = 8f
+
+    const val POINTS_ENEMY = 3
+
 
 
     @Volatile

@@ -2,6 +2,7 @@ package com.danielpl.glasteroids.entity
 
 import android.graphics.PointF
 import com.danielpl.glasteroids.Dot
+import com.danielpl.glasteroids.GLManager
 import com.danielpl.glasteroids.entity.GLEntity
 import com.danielpl.glasteroids.polygonVsPoint
 import com.danielpl.glasteroids.util.Config.TO_RADIANS
@@ -21,7 +22,8 @@ class Bullet : GLEntity() {
     }
 
     fun fireFrom(source: GLEntity) {
-        val theta = source._rotation * TO_RADIANS
+        //val theta = (source._rotation + 45) * TO_RADIANS
+        val theta = _shootingAngle
         _x = source._x + sin(theta) * (source._width * 0.5f)
         _y = source._y - cos(theta) * (source._height * 0.5f)
         _velX = source._velX
@@ -44,9 +46,9 @@ class Bullet : GLEntity() {
         }
     }
 
-    override fun render(viewportMatrix: FloatArray) {
+    override fun render(viewportMatrix: FloatArray, glManager: GLManager) {
         if (_ttl > 0) {
-            super.render(viewportMatrix)
+            super.render(viewportMatrix, glManager)
         }
     }
 

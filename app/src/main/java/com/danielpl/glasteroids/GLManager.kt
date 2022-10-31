@@ -6,6 +6,9 @@ import android.util.Log
 import com.danielpl.glasteroids.entity.COORDS_PER_VERTEX
 import com.danielpl.glasteroids.entity.Mesh
 import com.danielpl.glasteroids.entity.VERTEX_STRIDE
+import com.danielpl.glasteroids.util.Config
+import com.danielpl.glasteroids.util.Config.INITIAL_LINE_WIDTH
+import com.danielpl.glasteroids.util.Config.INITIAL_POINT_SIZE
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.FloatBuffer
@@ -13,8 +16,12 @@ import java.nio.FloatBuffer
 
 const val OFFSET = 0 //just to have a name for the parameter
 
-object GLManager {
-    const val TAG = "GLManager"
+class GLManager()  {
+    val TAG = "GLManager"
+
+    init{
+
+    }
 
     //handles to various GL objects:
     private var glProgramHandle //handle to the compiled shader program
@@ -27,6 +34,33 @@ object GLManager {
     var MVPMatrixHandle //handle to the model-view-projection matrix
             = 0
 
+    var pointSizeHandle = 0 // handle to the point size
+
+
+
+    fun setPointSize(pointSize: Float) {
+        GLES20.glUniform1f(pointSizeHandle, pointSize)
+    }
+
+    fun setLineWidth(lineWidth: Float){
+        GLES20.glLineWidth(lineWidth) //draw lines 5px wide
+    }
+
+    private fun setShaderColor(color: FloatArray) {
+        val COUNT = 1
+        // set color for drawing the pixels of our geometry
+        GLES20.glUniform4fv(colorUniformHandle, COUNT, color, OFFSET)
+        checkGLError("setShaderColor")
+    }
+
+
+    fun enableShader(){
+        GLES20.glUseProgram(glProgramHandle)
+    }
+
+    fun disableShader(){
+        GLES20.glDeleteProgram(glProgramHandle)
+    }
     /*
 
     Now it is read from text file
@@ -36,10 +70,11 @@ object GLManager {
             """
         uniform mat4 modelViewProjection;  // A constant representing the combined model/view/projection matrix.
         attribute vec4 position;  // Per-vertex position information that we will pass in.
+        attribute float pointSize
         void main() {             // The entry point for our vertex shader.
             gl_Position = modelViewProjection  // gl_Position is a special variable used to store the final position.
                 * position;       // Multiply the vertex by the matrix to get the final point in normalized screen coordinates.
-            gl_PointSize = 8.0; //pixel width of points
+            gl_PointSize = pointSize; //pixel width of points
         }
     """
 
@@ -105,9 +140,15 @@ object GLManager {
         positionAttributeHandle = GLES20.glGetAttribLocation(glProgramHandle, "position")
         colorUniformHandle = GLES20.glGetUniformLocation(glProgramHandle, "color")
         MVPMatrixHandle = GLES20.glGetUniformLocation(glProgramHandle, "modelViewProjection")
+        pointSizeHandle = GLES20.glGetUniformLocation(glProgramHandle, "pointSize")
+
         //activate the program
-        GLES20.glUseProgram(glProgramHandle)
-        GLES20.glLineWidth(10f) //draw lines 5px wide
+        enableShader()
+        disableShader()
+
+
+        setLineWidth(INITIAL_LINE_WIDTH)
+        setPointSize(INITIAL_POINT_SIZE)
         checkGLError("buildProgram")
     }
 
@@ -134,12 +175,6 @@ object GLManager {
     )
 
 
-    private fun setShaderColor(color: FloatArray) {
-        val COUNT = 1
-        // set color for drawing the pixels of our geometry
-        GLES20.glUniform4fv(colorUniformHandle, COUNT, color, OFFSET)
-        checkGLError("setShaderColor")
-    }
 
     private fun uploadMesh(vertexBuffer: FloatBuffer) {
         val NORMALIZED = false

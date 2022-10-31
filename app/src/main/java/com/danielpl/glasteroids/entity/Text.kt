@@ -2,8 +2,8 @@ package com.danielpl.glasteroids.entity
 
 import android.opengl.Matrix
 import com.danielpl.glasteroids.*
-import com.danielpl.glasteroids.GLManager.draw
 import com.danielpl.glasteroids.util.*
+import javax.inject.Inject
 
 
 class Text(s: String, x: Float, y: Float) : GLEntity() {
@@ -11,6 +11,8 @@ class Text(s: String, x: Float, y: Float) : GLEntity() {
     private var _spacing = GLYPH_SPACING //spacing between characters
     private var _glyphWidth = GLYPH_WIDTH.toFloat()
     private var _glyphHeight = GLYPH_HEIGHT.toFloat()
+
+
     init {
         setString(s)
         _x = x
@@ -24,7 +26,7 @@ class Text(s: String, x: Float, y: Float) : GLEntity() {
         _meshes = GLPixelFont.getString(s)
     }
 
-    override fun render(viewportMatrix: FloatArray) {
+    override fun render(viewportMatrix: FloatArray, glManager: GLManager) {
         for (i in _meshes.indices) {
             if (_meshes[i] == BLANK_SPACE) {
                 continue
@@ -40,7 +42,7 @@ class Text(s: String, x: Float, y: Float) : GLEntity() {
                 modelMatrix,
                 OFFSET
             )
-            draw(_meshes[i], viewportModelMatrix, _color)
+            glManager.draw(_meshes[i], viewportModelMatrix, _color)
         }
     }
 

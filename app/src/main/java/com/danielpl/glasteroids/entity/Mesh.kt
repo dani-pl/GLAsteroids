@@ -3,6 +3,7 @@ package com.danielpl.glasteroids.entity
 import android.graphics.PointF
 import android.opengl.GLES20
 import android.util.Log
+import com.danielpl.glasteroids.util.Config.TO_RADIANS
 import com.danielpl.glasteroids.util.Point3D
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

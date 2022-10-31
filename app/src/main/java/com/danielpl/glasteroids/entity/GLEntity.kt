@@ -3,11 +3,13 @@ package com.danielpl.glasteroids.entity
 import android.graphics.PointF
 import android.opengl.GLES20
 import android.opengl.Matrix
+import com.danielpl.glasteroids.GLManager
 import com.danielpl.glasteroids.util.Config.WORLD_HEIGHT
 import com.danielpl.glasteroids.util.Config.WORLD_WIDTH
-import com.danielpl.glasteroids.GLManager.draw
 import com.danielpl.glasteroids.OFFSET
 import com.danielpl.glasteroids.util.Jukebox
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 //re-usable singleton TriangleMesh
@@ -25,7 +27,7 @@ val modelMatrix = FloatArray(4 * 4)
 val viewportModelMatrix = FloatArray(4 * 4)
 val rotationViewportModelMatrix = FloatArray(4 * 4)
 
-open class GLEntity {
+open class GLEntity() {
     lateinit var _mesh: Mesh
     var _color = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f) //RGBA, default white
     var _x = 0.0f
@@ -37,6 +39,8 @@ open class GLEntity {
     var _rotation = 0f
     var _width = 0.0f
     var _height = 0.0f
+    var _shootingAngle = 0.0f
+
 
     open fun update(dt: Float, jukebox: Jukebox) {
         _x += _velX * dt;
@@ -83,7 +87,7 @@ open class GLEntity {
         _x = rightEdgePosition - _mesh.right()
     }
 
-    open fun render(viewportMatrix: FloatArray) {
+    open fun render(viewportMatrix: FloatArray, glManager: GLManager) {
         //reset the model matrix and then translate (move) it into world space
         Matrix.setIdentityM(modelMatrix, OFFSET) //reset model matrix
         Matrix.translateM(modelMatrix, OFFSET, _x, _y, _depth)
@@ -105,7 +109,7 @@ open class GLEntity {
             OFFSET
         )
 
-        draw(_mesh, rotationViewportModelMatrix, _color)
+        glManager.draw(_mesh, rotationViewportModelMatrix, _color)
     }
 
 

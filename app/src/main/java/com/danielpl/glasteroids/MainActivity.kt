@@ -8,7 +8,9 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.core.view.WindowCompat
 import com.danielpl.glasteroids.gamepad.TouchController
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var game: Game
     override fun onCreate(savedInstanceState: Bundle?) {

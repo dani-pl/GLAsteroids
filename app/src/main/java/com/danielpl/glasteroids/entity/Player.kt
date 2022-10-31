@@ -1,6 +1,7 @@
 package com.danielpl.glasteroids.entity
 
 import android.opengl.GLES20
+import com.danielpl.glasteroids.GLManager
 import com.danielpl.glasteroids.engine
 import com.danielpl.glasteroids.polygonVsPoint
 import com.danielpl.glasteroids.polygonVsPolygon
@@ -8,15 +9,13 @@ import com.danielpl.glasteroids.util.Config.DRAG
 import com.danielpl.glasteroids.util.Config.ROTATION_VELOCITY
 import com.danielpl.glasteroids.util.Config.THRUST
 import com.danielpl.glasteroids.util.Config.TIME_BETWEEN_SHOTS
+import com.danielpl.glasteroids.util.Config.TO_RADIANS
 import com.danielpl.glasteroids.util.Jukebox
 import com.danielpl.glasteroids.util.SFX
 import kotlin.concurrent.fixedRateTimer
-import kotlin.concurrent.timerTask
-import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-const val TO_RADIANS = PI.toFloat() / 180.0f
 
 class Player(x: Float, y: Float) : GLEntity() {
     private val TAG = "Player"
@@ -57,7 +56,7 @@ class Player(x: Float, y: Float) : GLEntity() {
         _bulletCooldown -= dt;
         if (engine._inputs._pressingA && _bulletCooldown <= 0f) {
             setColors(1f, 0f, 1f, 1f);
-            if (engine.maybeFireBullet(this)) {
+            if (engine.maybeFireBulletfromPlayer(this)) {
                 _bulletCooldown = TIME_BETWEEN_SHOTS;
             }
         } else {
@@ -66,7 +65,7 @@ class Player(x: Float, y: Float) : GLEntity() {
         super.update(dt, jukebox)
     }
 
-    override fun render(viewportMatrix: FloatArray) {
+    override fun render(viewportMatrix: FloatArray, glManager: GLManager) {
         //val uptime = SystemClock.uptimeMillis() //get an (ever-increasing) timestamp to use as a counter
         //val startPosition = WORLD_WIDTH / 2f
         //val range = WORLD_WIDTH / 2f //amplitude of our sine wave (how far to travel, in each direction)
@@ -84,7 +83,7 @@ class Player(x: Float, y: Float) : GLEntity() {
         _y += _velY
 
         //ask the super class (GLEntity) to render us
-        super.render(viewportMatrix)
+        super.render(viewportMatrix, glManager)
     }
 
     override fun isColliding(that: GLEntity): Boolean {

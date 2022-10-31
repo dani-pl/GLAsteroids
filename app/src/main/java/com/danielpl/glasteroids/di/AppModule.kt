@@ -1,6 +1,7 @@
 package com.danielpl.glasteroids.di
 
 import android.app.Application
+import com.danielpl.glasteroids.GLManager
 import com.danielpl.glasteroids.util.Jukebox
 import dagger.Module
 import dagger.Provides
@@ -23,6 +24,13 @@ object AppModule {
     }
 
      */
+
+
+    @Provides
+    @Singleton
+    fun provideGlManager(): GLManager{
+        return GLManager()
+    }
 
 
 

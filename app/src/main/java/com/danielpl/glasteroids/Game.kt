@@ -16,7 +16,8 @@ import com.danielpl.glasteroids.util.Config.WORLD_WIDTH
 import com.danielpl.glasteroids.gamepad.InputManager
 import com.danielpl.glasteroids.util.Config.BREAK_APART_LARGE_ASTEROID
 import com.danielpl.glasteroids.util.Config.BREAK_APART_MEDIUM_ASTEROID
-import com.danielpl.glasteroids.util.Config.BULLET_COUNT
+import com.danielpl.glasteroids.util.Config.BULLET_COUNT_ENEMY
+import com.danielpl.glasteroids.util.Config.BULLET_COUNT_PLAYER
 import com.danielpl.glasteroids.util.Config.DISPLAY_FRAME_COUNTER
 import com.danielpl.glasteroids.util.Config.INCREASE_ASTEROIDS_NUMBER
 import com.danielpl.glasteroids.util.Config.INITIAL_ASTEROID_COUNT
@@ -35,6 +36,8 @@ import com.danielpl.glasteroids.util.Config.score
 import com.danielpl.glasteroids.util.Jukebox
 import com.danielpl.glasteroids.util.RenderHud
 import com.danielpl.glasteroids.util.SFX
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
@@ -42,6 +45,7 @@ import kotlin.random.Random
 
 lateinit var engine: Game
 
+@AndroidEntryPoint
 class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs),
     GLSurfaceView.Renderer {
     private val TAG = "Game"
@@ -58,12 +62,20 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
 
     var jukebox = Jukebox(ctx)
 
+    @Inject
+    lateinit var glManager: GLManager
+
+    private val _enemies = ArrayList<Enemy>()
+
 
     private val _asteroids = ArrayList<Asteroid>()
     private val _asteroidsToAdd = ArrayList<Asteroid>()
     private val _texts = ArrayList<Text>()
 
-    var _bullets = ArrayList<Bullet>(BULLET_COUNT)
+
+    var _bulletsPlayer = ArrayList<Bullet>(BULLET_COUNT_PLAYER)
+    var _bulletsEnemy = ArrayList<Bullet>(BULLET_COUNT_ENEMY)
+
 
     private val BG_COLOR = floatArrayOf(0f / 255f, 0f / 255f, 84f / 255f, 1f) //RGBA
     val _player = Player(WORLD_WIDTH / 2, WORLD_HEIGHT / 2f)
@@ -89,9 +101,19 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
             _asteroids.add(asteroid)
         }
 
-        for (i in 0 until BULLET_COUNT) {
-            _bullets.add(Bullet())
+        for (i in 0 until BULLET_COUNT_PLAYER) {
+            _bulletsPlayer.add(Bullet())
         }
+
+        for (i in 0 until BULLET_COUNT_ENEMY) {
+            _bulletsEnemy.add(Bullet())
+        }
+
+
+        val x = Random.nextInt(WORLD_WIDTH.toInt()).toFloat()
+        val y = Random.nextInt(WORLD_HEIGHT.toInt()).toFloat()
+        _enemies.add(Enemy(x,y))
+
 
         setEGLContextClientVersion(2)
         setRenderer(this)
@@ -111,7 +133,7 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
     fun hexColorToFloat(hex: Int) = hex / 255f
 
     override fun onSurfaceCreated(unused: GL10, p1: EGLConfig) {
-        GLManager.buildProgram(assetManager) //compile, link and upload our shaders to the GPU
+        glManager.buildProgram(assetManager) //compile, link and upload our shaders to the GPU
         GLES20.glClearColor(BG_COLOR[0], BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]) //set clear color
         //center the player in the world
     }
@@ -196,13 +218,29 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
             for (a in _asteroids) {
                 a.update(dt, jukebox)
             }
-            for (b in _bullets) {
+            for (b in _bulletsPlayer) {
                 if (b.isDead()) {
                     continue //skip
                 }
                 b.update(dt, jukebox)
             }
+
+            for (b in _bulletsEnemy) {
+                if (b.isDead()) {
+                    continue //skip
+                }
+                b.update(dt, jukebox)
+            }
+
+
             _player.update(dt, jukebox)
+
+            for (e in _enemies){
+                e.playerX = _player._x
+                e.playerY = _player._y
+                e.update(dt, jukebox)
+            }
+
 
             collisionDetection()
             removeDeadEntities()
@@ -224,56 +262,83 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
         val far = 1f
         Matrix.orthoM(_viewportMatrix, offset, left, right, bottom, top, near, far)
 
-        _border.render(_viewportMatrix)
+        _border.render(_viewportMatrix, glManager)
         for (s in _stars) {
-            s.render(_viewportMatrix)
+            s.render(_viewportMatrix, glManager)
         }
         for (a in _asteroids) {
-            a.render(_viewportMatrix)
+            a.render(_viewportMatrix, glManager)
         }
-        _player.render(_viewportMatrix)
+        _player.render(_viewportMatrix, glManager)
 
-        for (b in _bullets) {
+        for (b in _bulletsPlayer) {
             if (b.isDead()) {
                 continue
             }
-            b.render(_viewportMatrix)
+            b.render(_viewportMatrix, glManager)
         }
+
+        for (b in _bulletsEnemy) {
+            if (b.isDead()) {
+                continue
+            }
+            b.render(_viewportMatrix, glManager)
+        }
+
+
+
+        for (e in _enemies){
+            e.render(_viewportMatrix,glManager)
+        }
+
 
 
 
         if (frameCounter == DISPLAY_FRAME_COUNTER) {
             val averageFps = accumulator2 / DISPLAY_FRAME_COUNTER
-            renderHud.showFps(averageFps, _viewportMatrix)
+            renderHud.showFps(averageFps, _viewportMatrix,glManager)
             frameCounter = 0
             accumulator2 = 0f
             oldAverageFPS = averageFps
         } else {
-            renderHud.showFps(oldAverageFPS, _viewportMatrix)
+            renderHud.showFps(oldAverageFPS, _viewportMatrix,glManager)
         }
 
         if (!isGameOver && !isLevelSuccessful) {
-            renderHud.showPlayerInfo(_viewportMatrix)
+            renderHud.showPlayerInfo(_viewportMatrix,glManager)
         } else {
-            renderHud.gameOverOrLevelSuccessful(_viewportMatrix)
+            renderHud.gameOverOrLevelSuccessful(_viewportMatrix,glManager)
         }
 
 
     }
 
-    fun maybeFireBullet(source: GLEntity): Boolean {
-        for (b in _bullets) {
+    fun maybeFireBulletfromPlayer(source: GLEntity): Boolean {
+        for (b in _bulletsPlayer) {
             if (b.isDead()) {
                 jukebox.play(SFX.shoot)
                 b.fireFrom(source)
                 return true
             }
         }
+
+        return false
+    }
+
+    fun fireBulletfromEnemy(source: GLEntity): Boolean {
+        for (b in _bulletsEnemy) {
+            if (b.isDead()) {
+                jukebox.play(SFX.shoot)
+                b.fireFrom(source)
+                return true
+            }
+        }
+
         return false
     }
 
     private fun collisionDetection() {
-        for (b in _bullets) {
+        for (b in _bulletsPlayer) {
             if (b.isDead()) {
                 continue
             } //skip dead bullets
@@ -332,6 +397,7 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
                     }
                     b.onCollision(a) //notify each entity so they can decide what to do
                     a.onCollision(b)
+
                 }
             }
         }

@@ -1,6 +1,7 @@
 package com.danielpl.glasteroids.entity
 
 import android.opengl.GLES20
+import com.danielpl.glasteroids.util.Config.TO_RADIANS
 
 class Border(x: Float, y: Float, worldWidth: Float, worldHeight: Float) :
     GLEntity() {

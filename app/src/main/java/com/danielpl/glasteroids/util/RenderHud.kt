@@ -1,16 +1,11 @@
 package com.danielpl.glasteroids.util
 
 import android.content.Context
-import android.view.ViewGroup
-import androidx.core.view.get
-import androidx.core.view.isVisible
 import com.danielpl.glasteroids.R
 import com.danielpl.glasteroids.entity.Text
-import kotlin.math.abs
-import android.opengl.GLES20
+import com.danielpl.glasteroids.GLManager
 import com.danielpl.glasteroids.util.Config.METERS_TO_SHOW_X
 import com.danielpl.glasteroids.util.Config.METERS_TO_SHOW_Y
-import com.danielpl.glasteroids.util.Config.destroyedAsteroids
 import com.danielpl.glasteroids.util.Config.isGameOver
 import com.danielpl.glasteroids.util.Config.isLevelSuccessful
 import com.danielpl.glasteroids.util.Config.level
@@ -21,20 +16,20 @@ class RenderHud(
     private val context: Context
 ) {
 
-    fun showFps(frameTime: Float, viewportMatrix: FloatArray) {
+    fun showFps(frameTime: Float, viewportMatrix: FloatArray, glManager: GLManager) {
         val fpsCounter = ArrayList<Text>()
         val mill_per_frame =
             (frameTime * Config.SECOND_IN_NANOSECONDS * Config.NANOSECONDS_TO_MILLISECONDS).toString()
-        val fps_x = Config.METERS_TO_SHOW_X * 0.1f
-        val fps_y = Config.METERS_TO_SHOW_Y * 0.9f
+        val fps_x = METERS_TO_SHOW_X * 0.1f
+        val fps_y = METERS_TO_SHOW_Y * 0.9f
         fpsCounter.add(Text(context.getString(R.string.fps_counter, mill_per_frame), fps_x, fps_y))
 
         for (t in fpsCounter) {
-            t.render(viewportMatrix)
+            t.render(viewportMatrix, glManager)
         }
     }
 
-    fun showPlayerInfo(viewportMatrix: FloatArray) {
+    fun showPlayerInfo(viewportMatrix: FloatArray, glManager: GLManager) {
         val livesCounter = ArrayList<Text>()
         val levelCounter = ArrayList<Text>()
         val scoreCounter = ArrayList<Text>()
@@ -62,20 +57,20 @@ class RenderHud(
         )
 
         for (t in livesCounter){
-            t.render(viewportMatrix)
+            t.render(viewportMatrix, glManager)
         }
 
         for (t in scoreCounter){
-            t.render(viewportMatrix)
+            t.render(viewportMatrix, glManager)
         }
 
         for (t in levelCounter){
-            t.render(viewportMatrix)
+            t.render(viewportMatrix, glManager)
         }
 
     }
 
-    fun gameOverOrLevelSuccessful(viewportMatrix: FloatArray) {
+    fun gameOverOrLevelSuccessful(viewportMatrix: FloatArray, glManager: GLManager) {
 
         if(isGameOver) {
 
@@ -99,11 +94,11 @@ class RenderHud(
             )
 
             for (t in gameOver) {
-                t.render(viewportMatrix)
+                t.render(viewportMatrix, glManager)
             }
 
             for (t in gameOverInstructions) {
-                t.render(viewportMatrix)
+                t.render(viewportMatrix, glManager)
             }
 
         } else if(isLevelSuccessful){
@@ -128,11 +123,11 @@ class RenderHud(
             )
 
             for (t in levelSuccessful) {
-                t.render(viewportMatrix)
+                t.render(viewportMatrix, glManager)
             }
 
             for (t in levelSuccessfulInstructions) {
-                t.render(viewportMatrix)
+                t.render(viewportMatrix, glManager)
             }
 
 

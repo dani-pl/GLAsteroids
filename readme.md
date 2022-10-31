@@ -20,3 +20,8 @@ Date: October 2022
 2. Implement levels (or "waves"). When the player destroys all asteroids the level increases 
    and new asteroids spawn. Each level (or wave) should be more challenging (and more rewarding)
    than the last.
+   
+3. Create a Shader-class that can load GLSL-source code from the
+   filesystem, build a shader program and provide an interface for tweaking all of the shader
+   settings, and enabling / disabling the shader. (now you can give each Entity their own Shader
+   if you'd like!)
