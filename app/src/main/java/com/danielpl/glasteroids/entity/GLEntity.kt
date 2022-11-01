@@ -46,6 +46,7 @@ open class GLEntity() {
         _x += _velX * dt;
         _y += _velY * dt;
 
+
         if (left() > WORLD_WIDTH) {
             setRight(0f);
         } else if (right() < 0f) {
@@ -57,12 +58,15 @@ open class GLEntity() {
         } else if (bottom() < 0f) {
             setTop(WORLD_HEIGHT);
         }
+        /*
 
         if (_y > WORLD_HEIGHT / 2f) {
             setColors(1f, 0f, 0f, 1f);
         } else {
             setColors(1f, 1f, 1f, 1f);
         }
+
+         */
         //_rotation++
 
     }

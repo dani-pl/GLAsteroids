@@ -329,7 +329,7 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
         for (b in _bulletsEnemy) {
             if (b.isDead()) {
                 jukebox.play(SFX.shoot)
-                b.fireFrom(source)
+                b.fireFromEnemy(source)
                 return true
             }
         }

@@ -7,6 +7,7 @@ import com.danielpl.glasteroids.entity.GLEntity
 import com.danielpl.glasteroids.polygonVsPoint
 import com.danielpl.glasteroids.util.Config.TO_RADIANS
 import com.danielpl.glasteroids.util.Jukebox
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -22,8 +23,7 @@ class Bullet : GLEntity() {
     }
 
     fun fireFrom(source: GLEntity) {
-        //val theta = (source._rotation + 45) * TO_RADIANS
-        val theta = _shootingAngle
+        val theta = (source._rotation + PI/3).toFloat() * TO_RADIANS
         _x = source._x + sin(theta) * (source._width * 0.5f)
         _y = source._y - cos(theta) * (source._height * 0.5f)
         _velX = source._velX
@@ -32,6 +32,20 @@ class Bullet : GLEntity() {
         _velY -= cos(theta) * SPEED
         _ttl = TIME_TO_LIVE
     }
+
+
+    fun fireFromEnemy(source: GLEntity) {
+        val theta = (source._rotation + PI/3).toFloat() * TO_RADIANS
+        _x = source._x + sin(theta) * (source._width * 0.5f)
+        _y = source._y - cos(theta) * (source._height * 0.5f)
+        _velX = source._velX
+        _velY = source._velY
+        _velX -= sin(theta) * SPEED
+        _velY += cos(theta) * SPEED
+        _ttl = TIME_TO_LIVE
+    }
+
+
 
     override fun isDead(): Boolean {
         return _ttl < 1
