@@ -75,10 +75,10 @@ Date: October 2022
    and new asteroids spawn. Each level (or wave) should be more challenging (and more rewarding)
    than the last.
 
-   *Implementation* In each wave, I increment the number of initial asteroids and the number of points for killing
+   *Implementation:* In each wave, I increment the number of initial asteroids and the number of points for killing
    an asteroid or saucer enemy is proportional to the wave number.
    
-3. *VG improvement 3:* Create a Shader-class that can load GLSL-source code from the filesystem, build a shader 
+-  *VG improvement 3:* Create a Shader-class that can load GLSL-source code from the filesystem, build a shader 
    program and provide an interface for tweaking all of the shader settings, and 
    enabling / disabling the shader. (now you can give each Entity their own Shader
    if you'd like!).
