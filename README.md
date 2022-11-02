@@ -3,7 +3,7 @@ Author: Daniel Peña López
 Date: October 2022
 
 **G improvements**
--  *G improvement 1:* Sound effects and Background music
+-  *G improvement 1:* Sound effects and Background music.
    
    *Implementation:* I have a total of 6 sound effects and 3 background musics.
    The sound effects are: boost, death, explosion, shoot, starting, win. On the other hand, I have
@@ -62,14 +62,14 @@ Date: October 2022
    player very quickly).
    You can see that more than one life can be lost when a bullet from the enemy approaches the
    player, this happens because more than one update() occurs while the bullet is inside the player.
-   I considered to change this behaviour and force to lose the player to lose just one life, but I 
+   I considered to change this behaviour and force the player to lose just one life, but I 
    found more realistic to lose a number of lifes proportional to the time the bullet has been inside
    the player.
    On the other hand, I have decided that the bullets of the enemy cannot destroy asteroids.
    Moreover, you will see that a bullet that leaves the world space does not reappear in the world
    space, I find it more realistic this way too.
-   Lastly, this saucer enemy appears randomly, every update I generate a random number in a given
-   interval and I check if that number is equal to zero, in case it is the saucer enemy appears.
+   Lastly, the saucer enemy appears randomly, every update I generate a random number in a given
+   interval and I check if that number is equal to zero, in case it is zero, the saucer enemy appears.
    If you kill it, you get a big fixed number of points that also depends on the wave you are.
    
 -  *VG improvement 2:* Implement levels (or "waves"). When the player destroys all asteroids the level increases 
@@ -85,5 +85,6 @@ Date: October 2022
    if you'd like!).
 
    *Implementation:* In my implementation, I have converted the GLManager into a class and I have created some
-   interfaces that allow me to change the PointSize, LineWidth, ShaderColor. And two interfaces to
-   enableShader() and disableShader().
+   interfaces that allow me to change the PointSize, LineWidth and ShaderColor. I have also created two interfaces to
+   enableShader() and disableShader(). Converting, the GLManager on a class had consequences in other
+   classes, all these consequences were fixed accordingly.
