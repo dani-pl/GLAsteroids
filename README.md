@@ -71,7 +71,7 @@ Date: October 2022
    interval and I check if that number is equal to zero, in case it is the saucer enemy appears.
    If you kill it, you get a big fixed number of points that also depends on the wave you are.
    
--  *VG improvement 2* Implement levels (or "waves"). When the player destroys all asteroids the level increases 
+-  *VG improvement 2:* Implement levels (or "waves"). When the player destroys all asteroids the level increases 
    and new asteroids spawn. Each level (or wave) should be more challenging (and more rewarding)
    than the last.
 
