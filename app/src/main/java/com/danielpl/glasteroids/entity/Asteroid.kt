@@ -15,13 +15,15 @@ import kotlin.random.Random
 fun between(min: Float, max: Float): Float = min + Random.nextFloat() * (max - min)
 
 private const val TAG = "Asteroid"
-class Asteroid(x: Float, y: Float, points: Int, var type: AsteroidType = AsteroidType.NONE) : GLEntity() {
+
+class Asteroid(x: Float, y: Float, points: Int, var type: AsteroidType = AsteroidType.NONE) :
+    GLEntity() {
 
 
     init {
-        assert(points >= 3, { "triangles or more, please. :)" })
-        _x = x
-        _y = y
+        assert(points >= 3) { "triangles or more, please. :)" }
+        this.x = x
+        this.y = y
         if (type == AsteroidType.NONE) {
             // if type has not been defined, choose a random type for the Asteroid
             when (Random.nextInt(1, 4)) {
@@ -39,32 +41,32 @@ class Asteroid(x: Float, y: Float, points: Int, var type: AsteroidType = Asteroi
 
         when (type) {
             AsteroidType.SMALL -> {
-                _width = 8f
-                _velX = between(MIN_VEL_ASTEROID_SMALL, MAX_VEL_ASTEROID_SMALL)
-                _velY = between(MIN_VEL_ASTEROID_SMALL, MAX_VEL_ASTEROID_SMALL)
+                width = 8f
+                velX = between(MIN_VEL_ASTEROID_SMALL, MAX_VEL_ASTEROID_SMALL)
+                velY = between(MIN_VEL_ASTEROID_SMALL, MAX_VEL_ASTEROID_SMALL)
             }
             AsteroidType.MEDIUM -> {
-                _width = 12f
-                _velX = between(MIN_VEL_ASTEROID_MEDIUM, MAX_VEL_ASTEROID_MEDIUM)
-                _velY = between(MIN_VEL_ASTEROID_MEDIUM, MAX_VEL_ASTEROID_MEDIUM)
+                width = 12f
+                velX = between(MIN_VEL_ASTEROID_MEDIUM, MAX_VEL_ASTEROID_MEDIUM)
+                velY = between(MIN_VEL_ASTEROID_MEDIUM, MAX_VEL_ASTEROID_MEDIUM)
             }
             AsteroidType.LARGE -> {
-                _width = 15f
-                _velX = between(MIN_VEL_ASTEROID_LARGE, MAX_VEL_ASTEROID_LARGE)
-                _velY = between(MIN_VEL_ASTEROID_LARGE, MAX_VEL_ASTEROID_LARGE)
+                width = 15f
+                velX = between(MIN_VEL_ASTEROID_LARGE, MAX_VEL_ASTEROID_LARGE)
+                velY = between(MIN_VEL_ASTEROID_LARGE, MAX_VEL_ASTEROID_LARGE)
             }
             else -> {
                 Log.d(TAG, "Asteroid should not be of None Type")
             }
-    }
+        }
 
 
-        _height = _width
-        val radius = _width * 0.5f
-        _mesh = Mesh(
+        height = width
+        val radius = width * 0.5f
+        mesh = Mesh(
             generateLinePolygon(points, radius),
             GLES20.GL_LINES
         )
-        _mesh.setWidthHeight(_width, _height)
+        mesh.setWidthHeight(width, height)
     }
 }

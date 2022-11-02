@@ -8,19 +8,16 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.core.view.WindowCompat
 import com.danielpl.glasteroids.gamepad.TouchController
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
+
 class MainActivity : AppCompatActivity() {
     private lateinit var game: Game
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //game = Game(this)
         setContentView(R.layout.activity_main)
         val controls = TouchController(findViewById(R.id.gamepad))
-        game = findViewById<Game>(R.id.game)
+        game = findViewById(R.id.game)
         game.setControls(controls)
-
     }
 
     override fun onResume() {
@@ -40,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) { //handle older SDKs, using the deprecated systemUiVisbility API
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) { //handle older SDKs, using the deprecated systemUiVisibility API
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     // Set the content to appear under the system bars so that the
@@ -61,7 +58,8 @@ class MainActivity : AppCompatActivity() {
             //Hide the keyboard (IME = "input method editor")
             insetsController.hide(WindowInsets.Type.ime())
             // set the modern equivalent to Sticky Immersive Mode:
-            insetsController.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            insetsController.systemBarsBehavior =
+                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             // hide both the system bars (eg. the status and navigation bars):
             insetsController.hide(WindowInsets.Type.systemBars())
         }

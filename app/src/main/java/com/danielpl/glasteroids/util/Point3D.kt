@@ -1,51 +1,20 @@
 package com.danielpl.glasteroids.util
-import kotlin.math.abs
-import kotlin.math.sqrt
 
 class Point3D {
-    var _x = 0.0f
-    var _y = 0.0f
-    var _z = 0.0f
-
-    constructor() {}
-    constructor(x: Float, y: Float, z: Float) {
-        set(x, y, z)
-    }
-
-    constructor(p: FloatArray) {
-        set(p)
-    }
+    var x = 0.0f
+    var y = 0.0f
+    var z = 0.0f
 
     operator fun set(x: Float, y: Float, z: Float) {
-        _x = x
-        _y = y
-        _z = z
+        this.x = x
+        this.y = y
+        this.z = z
     }
 
     fun set(p: FloatArray) {
         assert(p.size == 3)
-        _x = p[0]
-        _y = p[1]
-        _z = p[2]
-    }
-
-    fun distanceSquared(that: Point3D): Float {
-        val dx = _x - that._x
-        val dy = _y - that._y
-        val dz = _z - that._z
-        return dx * dx + dy * dy + dz * dz
-    }
-
-    fun distance(that: Point3D): Float {
-        val dx = _x - that._x
-        val dy = _y - that._y
-        val dz = _z - that._z
-        return sqrt((dx * dx + dy * dy + dz * dz))
-    }
-
-    fun distanceL1(that: Point3D): Float {
-        return abs(_x - that._x) + abs(_y - that._y) + abs(
-            _z - that._z
-        )
+        x = p[0]
+        y = p[1]
+        z = p[2]
     }
 }

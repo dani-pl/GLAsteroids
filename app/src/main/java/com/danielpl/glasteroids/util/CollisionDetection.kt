@@ -1,41 +1,11 @@
-package com.danielpl.glasteroids
+package com.danielpl.glasteroids.util
 
 import android.graphics.PointF
-import kotlin.math.PI
-import kotlin.math.abs
 
-const val TO_DEGREES = (180.0f / PI).toFloat()
-const val TO_RADIANS = (PI / 180.0f).toFloat()
-
-fun triangleVsPoint(triVerts: ArrayList<PointF>, px: Float, py: Float): Boolean {
-    assert(
-        triVerts.size == 3,
-        { "triangleVsPoints expects 3 vertices. For more complex shapes, use polygonVsPoint!" }
-    )
-    val p1 = triVerts[0]
-    val p2 = triVerts[1]
-    val p3 = triVerts[2]
-
-    //calculate the area of the original triangle using Cramers Rule
-    // https://web.archive.org/web/20070912110121/http://mcraefamily.com:80/MathHelp/GeometryTriangleAreaDeterminant.htm
-    val triangleArea = abs((p2.x - p1.x) * (p3.y - p1.y) - (p3.x - p1.x) * (p2.y - p1.y))
-
-    // get the area of 3 triangles made between the point, and each corner of the triangle
-    val area1 = abs((p1.x - px) * (p2.y - py) - (p2.x - px) * (p1.y - py))
-    val area2 = abs((p2.x - px) * (p3.y - py) - (p3.x - px) * (p2.y - py))
-    val area3 = abs((p3.x - px) * (p1.y - py) - (p1.x - px) * (p3.y - py))
-
-    // if the sum of the three areas equals the original we're inside the triangle.
-    // we avoid equality comparisons on float by checking "larger than".
-    if (area1 + area2 + area3 > triangleArea) {
-        return false
-    }
-    return true
-}
 
 fun polygonVsPolygon(polyA: ArrayList<PointF>, polyB: ArrayList<PointF>): Boolean {
     val count = polyA.size
-    var next = 0
+    var next: Int
     for (current in 0 until count) {
         next = current + 1
         if (next == count) {
@@ -55,9 +25,13 @@ fun polygonVsPolygon(polyA: ArrayList<PointF>, polyB: ArrayList<PointF>): Boolea
     return false
 }
 
-fun polygonVsSegment(vertices: ArrayList<PointF>, segmentStart: PointF, segmentEnd: PointF): Boolean {
+fun polygonVsSegment(
+    vertices: ArrayList<PointF>,
+    segmentStart: PointF,
+    segmentEnd: PointF
+): Boolean {
     val count = vertices.size
-    var next = 0
+    var next: Int
     for (current in 0 until count) {
         next = current + 1
         if (next == count) {
@@ -97,7 +71,7 @@ fun segmentVsSegment(
     val uA = (dx2 * (y1 - y3) - dy2 * (x1 - x3)) * cInv
     val uB = (dx1 * (y1 - y3) - dy1 * (x1 - x3)) * cInv
     // if uA and uB are between 0-1, lines are colliding
-    return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1
+    return uA in 0.0..1.0 && uB >= 0 && uB <= 1
 }
 
 // used to check if a point is inside a polygon, using the Jordan curve theorem.
@@ -106,7 +80,7 @@ fun segmentVsSegment(
 fun polygonVsPoint(vertices: ArrayList<PointF>, px: Float, py: Float): Boolean {
     val count = vertices.size
     var collision = false
-    var next = 0
+    var next: Int
     for (current in 0 until count) {
         next = current + 1
         if (next == count) next = 0

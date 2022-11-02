@@ -6,20 +6,18 @@ import android.opengl.Matrix
 import com.danielpl.glasteroids.GLManager
 import com.danielpl.glasteroids.util.Config.WORLD_HEIGHT
 import com.danielpl.glasteroids.util.Config.WORLD_WIDTH
-import com.danielpl.glasteroids.OFFSET
+import com.danielpl.glasteroids.util.Config.OFFSET
 import com.danielpl.glasteroids.util.Jukebox
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 
 //re-usable singleton TriangleMesh
 object Triangle {
-    val verts = floatArrayOf( // in counterclockwise order:
+    val vert = floatArrayOf( // in counterclockwise order:
         0.0f, 0.5f, 0.0f, // top
         -0.5f, -0.5f, 0.0f, // bottom left
         0.5f, -0.5f, 0.0f // bottom right
     )
-    val mesh = Mesh(verts, GLES20.GL_TRIANGLES)
+    val mesh = Mesh(vert, GLES20.GL_TRIANGLES)
 }
 
 //re-usable matrices
@@ -27,38 +25,44 @@ val modelMatrix = FloatArray(4 * 4)
 val viewportModelMatrix = FloatArray(4 * 4)
 val rotationViewportModelMatrix = FloatArray(4 * 4)
 
-open class GLEntity() {
-    lateinit var _mesh: Mesh
-    var _color = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f) //RGBA, default white
-    var _x = 0.0f
-    var _y = 0.0f
-    var _velX = 0f
-    var _velY = 0f
-    var _depth = 0.0f //we'll use _depth for z-axis
-    var _scale = 1f
-    var _rotation = 0f
-    var _width = 0.0f
-    var _height = 0.0f
-    var _shootingAngle = 0.0f
+open class GLEntity {
+    lateinit var mesh: Mesh
+    var color = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f) //RGBA, default white
+    var x = 0.0f
+    var y = 0.0f
+    var velX = 0f
+    var velY = 0f
+    var depth = 0.0f //we'll use _depth for z-axis
+    var scale = 1f
+    var rotation = 0f
+    var width = 0.0f
+    var height = 0.0f
 
 
     open fun update(dt: Float, jukebox: Jukebox) {
-        _x += _velX * dt;
-        _y += _velY * dt;
+        x += velX * dt
+        y += velY * dt
 
 
-        if (left() > WORLD_WIDTH) {
-            setRight(0f);
-        } else if (right() < 0f) {
-            setLeft(WORLD_WIDTH);
+        if (this !is Bullet) {
+
+
+            if (left() > WORLD_WIDTH) {
+                setRight()
+            } else if (right() < 0f) {
+                setLeft()
+            }
+
+            if (top() > WORLD_HEIGHT) {
+                setBottom()
+            } else if (bottom() < 0f) {
+                setTop()
+            }
         }
 
-        if (top() > WORLD_HEIGHT) {
-            setBottom(0f);
-        } else if (bottom() < 0f) {
-            setTop(WORLD_HEIGHT);
-        }
         /*
+
+        // Action: Change color of entities depending on region
 
         if (_y > WORLD_HEIGHT / 2f) {
             setColors(1f, 0f, 0f, 1f);
@@ -67,41 +71,40 @@ open class GLEntity() {
         }
 
          */
-        //_rotation++
 
     }
 
-    fun left() = _x + _mesh.left()
-    fun right() = _x + _mesh.right()
-    fun setLeft(leftEdgePosition: Float) {
-        _x = leftEdgePosition - _mesh.left()
+    fun left() = x + mesh.left()
+    fun right() = x + mesh.right()
+    private fun setLeft() {
+        x = WORLD_WIDTH - mesh.left()
     }
 
-    fun top() = _y + _mesh.top()
-    fun bottom() = _y + _mesh.bottom()
-    fun setTop(topEdgePosition: Float) {
-        _y = topEdgePosition - _mesh.top()
+    fun top() = y + mesh.top()
+    fun bottom() = y + mesh.bottom()
+    private fun setTop() {
+        y = WORLD_HEIGHT - mesh.top()
     }
 
-    fun setBottom(bottomEdgePosition: Float) {
-        _y = bottomEdgePosition - _mesh.bottom()
+    private fun setBottom() {
+        y = -mesh.bottom()
     }
 
-    fun setRight(rightEdgePosition: Float) {
-        _x = rightEdgePosition - _mesh.right()
+    private fun setRight() {
+        x = -mesh.right()
     }
 
     open fun render(viewportMatrix: FloatArray, glManager: GLManager) {
         //reset the model matrix and then translate (move) it into world space
         Matrix.setIdentityM(modelMatrix, OFFSET) //reset model matrix
-        Matrix.translateM(modelMatrix, OFFSET, _x, _y, _depth)
+        Matrix.translateM(modelMatrix, OFFSET, x, y, depth)
         //viewportMatrix * modelMatrix combines into the viewportModelMatrix
         //NOTE: projection matrix on the left side and the model matrix on the right side.
         Matrix.multiplyMM(viewportModelMatrix, OFFSET, viewportMatrix, OFFSET, modelMatrix, OFFSET)
         //apply a rotation around the Z-axis to our modelMatrix. Rotation is in degrees.
-        Matrix.setRotateM(modelMatrix, OFFSET, _rotation, 0f, 0f, 1.0f)
+        Matrix.setRotateM(modelMatrix, OFFSET, rotation, 0f, 0f, 1.0f)
         //apply scaling to our modelMatrix, on the x and y axis only.
-        Matrix.scaleM(modelMatrix, OFFSET, _scale, _scale, 1f)
+        Matrix.scaleM(modelMatrix, OFFSET, scale, scale, 1f)
         //finally, multiply the rotated & scaled model matrix into the model-viewport matrix
         //creating the final rotationViewportModelMatrix that we pass on to OpenGL
         Matrix.multiplyMM(
@@ -113,24 +116,18 @@ open class GLEntity() {
             OFFSET
         )
 
-        glManager.draw(_mesh, rotationViewportModelMatrix, _color)
-    }
-
-
-    fun setColors(colors: FloatArray) {
-        assert(colors.size == 4)
-        setColors(colors[0], colors[1], colors[2], colors[3])
+        glManager.draw(mesh, rotationViewportModelMatrix, color)
     }
 
     fun setColors(r: Float, g: Float, b: Float, a: Float) {
-        _color[0] = r //red
-        _color[1] = g //green
-        _color[2] = b //blue
-        _color[3] = a //alpha (transparency)
+        color[0] = r //red
+        color[1] = g //green
+        color[2] = b //blue
+        color[3] = a //alpha (transparency)
     }
 
 
-    var _isAlive = true
+    private var _isAlive = true
     open fun isDead(): Boolean {
         return !_isAlive
     }
@@ -147,16 +144,16 @@ open class GLEntity() {
     }
 
     open fun centerX(): Float {
-        return _x //assumes our mesh has been centered on [0,0] (normalized)
+        return x //assumes our mesh has been centered on [0,0] (normalized)
     }
 
     open fun centerY(): Float {
-        return _y //assumes our mesh has been centered on [0,0] (normalized)
+        return y //assumes our mesh has been centered on [0,0] (normalized)
     }
 
     open fun radius(): Float {
         //use the longest side to calculate radius
-        return if (_width > _height) _width * 0.5f else _height * 0.5f
+        return if (width > height) width * 0.5f else height * 0.5f
     }
 
     fun areBoundingSpheresOverlapping(a: GLEntity, b: GLEntity): Boolean {
@@ -169,7 +166,7 @@ open class GLEntity() {
     }
 
     open fun getPointList(): ArrayList<PointF> {
-        return _mesh.getPointList(_x, _y, _rotation)
+        return mesh.getPointList(x, y, rotation)
     }
 
 }
@@ -180,35 +177,3 @@ fun isAABBOverlapping(a: GLEntity, b: GLEntity): Boolean {
     return !(a.right() <= b.left() || b.right() <= a.left() || a.bottom() <= b.top() || b.bottom() <= a.top())
 }
 
-//a more refined AABB intersection test
-//returns true on intersection, and sets the least intersecting axis in overlap
-val overlap = PointF(0f, 0f); //re-usable PointF for collision detection. Assumes single threading.
-
-@SuppressWarnings("UnusedReturnValue")
-fun getOverlap(a: GLEntity, b: GLEntity, overlap: PointF): Boolean {
-    overlap.x = 0.0f;
-    overlap.y = 0.0f;
-    val centerDeltaX = a.centerX() - b.centerX();
-    val halfWidths = (a._width + b._width) * 0.5f;
-    var dx = Math.abs(centerDeltaX); //cache the abs, we need it twice
-
-    if (dx > halfWidths) return false; //no overlap on x == no collision
-
-    val centerDeltaY = a.centerY() - b.centerY();
-    val halfHeights = (a._height + b._height) * 0.5f;
-    var dy = Math.abs(centerDeltaY);
-
-    if (dy > halfHeights) return false; //no overlap on y == no collision
-
-    dx = halfWidths - dx; //overlap on x
-    dy = halfHeights - dy; //overlap on y
-    if (dy < dx) {
-        overlap.y = if (centerDeltaY < 0f) -dy else dy;
-    } else if (dy > dx) {
-        overlap.x = if (centerDeltaX < 0) -dx else dx;
-    } else {
-        overlap.x = if (centerDeltaX < 0) -dx else dx;
-        overlap.y = if (centerDeltaY < 0) -dy else dy;
-    }
-    return true;
-}

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
+<!--suppress ALL -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_gravity="bottom"
-    android:padding="@dimen/keypad_size"
+    android:id="@+id/gamepad"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/gamepad">
+    android:layout_gravity="bottom"
+    android:padding="@dimen/keypad_size">
 
     <Button
         android:id="@+id/keypad_left"
@@ -15,6 +16,7 @@
         android:layout_height="@dimen/keypad_size"
         android:layout_alignParentStart="true"
         android:background="@drawable/arrow_left"
+        android:contentDescription="@string/keypad_left"
         app:backgroundTint="@color/white" />
 
     <Button
@@ -24,6 +26,7 @@
         android:layout_marginStart="48dp"
         android:layout_toEndOf="@+id/keypad_left"
         android:background="@drawable/arrow_right"
+        android:contentDescription="@string/keypad_right"
         app:backgroundTint="@color/white" />
 
     <Button
@@ -32,6 +35,7 @@
         android:layout_height="@dimen/keypad_size"
         android:layout_alignParentEnd="true"
         android:background="@drawable/boost"
+        android:contentDescription="@string/keypad_b"
         app:backgroundTint="#FF9800" />
 
     <Button
@@ -41,5 +45,6 @@
         android:layout_marginEnd="48dp"
         android:layout_toStartOf="@+id/keypad_b"
         android:background="@drawable/bullet"
+        android:contentDescription="@string/keypad_a"
         app:backgroundTint="#FFEB3B" />
 </RelativeLayout>

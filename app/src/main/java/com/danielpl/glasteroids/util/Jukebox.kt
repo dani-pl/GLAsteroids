@@ -8,7 +8,9 @@ import android.media.SoundPool
 import android.util.Log
 import com.danielpl.glasteroids.R
 import com.danielpl.glasteroids.util.Config.DEFAULT_MUSIC_VOLUME
+import com.danielpl.glasteroids.util.Config.MAX_STREAMS
 import com.danielpl.glasteroids.util.Config.level
+import com.danielpl.glasteroids.util.Config.thereIsAnEnemy
 import java.io.IOException
 
 object SFX {
@@ -18,16 +20,13 @@ object SFX {
     var explosion = 3
     var win = 4
     var shoot = 5
+    var saucerEnemy = 6
 }
-
-const val MAX_STREAMS = 1
 
 class Jukebox(engine: Context) {
     private val assetManager = engine.assets
     private val soundPool: SoundPool
     private var mBgPlayer: MediaPlayer? = null
-
-    //private var mSoundEnabled = true
     private var mMusicEnabled = true
 
 
@@ -47,6 +46,7 @@ class Jukebox(engine: Context) {
         SFX.explosion = loadSound("sfx/explosion.wav")
         SFX.shoot = loadSound("sfx/shoot.wav")
         SFX.win = loadSound("sfx/win.wav")
+        SFX.saucerEnemy = loadSound("sfx/saucer_enemy.wav")
         loadMusic()
     }
 
@@ -82,11 +82,14 @@ class Jukebox(engine: Context) {
     }
      */
 
-    fun loadMusic() {
+    private fun loadMusic() {
         try {
             mBgPlayer = MediaPlayer()
+
             var afd = assetManager.openFd("bgm/background_music_1.mp3")
-            if(level%2==0) {
+            if (thereIsAnEnemy) {
+                afd = assetManager.openFd("bgm/background_music_enemy.mp3")
+            } else if (level % 2 == 0) {
                 afd = assetManager.openFd("bgm/background_music_2.mp3")
             }
 
@@ -118,12 +121,18 @@ class Jukebox(engine: Context) {
     }
 
 
-    fun unloadMusic() {
+    private fun unloadMusic() {
         if (mBgPlayer == null) {
             return
         }
         mBgPlayer!!.stop()
         mBgPlayer!!.release()
+    }
+
+    fun changeBgMusic() {
+        unloadMusic()
+        loadMusic()
+        resumeBgMusic()
     }
 
 }

@@ -3,11 +3,16 @@ package com.danielpl.glasteroids.entity
 import android.opengl.Matrix
 import com.danielpl.glasteroids.*
 import com.danielpl.glasteroids.util.*
-import javax.inject.Inject
+import com.danielpl.glasteroids.util.Config.BLANK_SPACE
+import com.danielpl.glasteroids.util.Config.GLYPH_HEIGHT
+import com.danielpl.glasteroids.util.Config.GLYPH_SPACING
+import com.danielpl.glasteroids.util.Config.GLYPH_WIDTH
+import com.danielpl.glasteroids.util.Config.OFFSET
+import com.danielpl.glasteroids.util.Config.TEXT_SCALING
 
 
 class Text(s: String, x: Float, y: Float) : GLEntity() {
-    var _meshes = ArrayList<Mesh>()
+    private var meshes = ArrayList<Mesh>()
     private var _spacing = GLYPH_SPACING //spacing between characters
     private var _glyphWidth = GLYPH_WIDTH.toFloat()
     private var _glyphHeight = GLYPH_HEIGHT.toFloat()
@@ -15,25 +20,25 @@ class Text(s: String, x: Float, y: Float) : GLEntity() {
 
     init {
         setString(s)
-        _x = x
-        _y = y
+        this.x = x
+        this.y = y
         //we can't use setWidthHeight, because normalization will break
         //the layout of the pixel-font. So we resort to simply scaling the text-entity
-        setScale(0.75f); //TO DO: magic value. scaling to 75%
+        setTextScale()
     }
 
-    fun setString(s: String) {
-        _meshes = GLPixelFont.getString(s)
+    private fun setString(s: String) {
+        meshes = GLPixelFont.getString(s)
     }
 
     override fun render(viewportMatrix: FloatArray, glManager: GLManager) {
-        for (i in _meshes.indices) {
-            if (_meshes[i] == BLANK_SPACE) {
+        for (i in meshes.indices) {
+            if (meshes[i] == BLANK_SPACE) {
                 continue
             }
             Matrix.setIdentityM(modelMatrix, OFFSET) //reset model matrix
-            Matrix.translateM(modelMatrix, OFFSET, _x + (_glyphWidth + _spacing) * i, _y, _depth)
-            Matrix.scaleM(modelMatrix, OFFSET, _scale, _scale, 1f)
+            Matrix.translateM(modelMatrix, OFFSET, x + (_glyphWidth + _spacing) * i, y, depth)
+            Matrix.scaleM(modelMatrix, OFFSET, scale, scale, 1f)
             Matrix.multiplyMM(
                 viewportModelMatrix,
                 OFFSET,
@@ -42,16 +47,16 @@ class Text(s: String, x: Float, y: Float) : GLEntity() {
                 modelMatrix,
                 OFFSET
             )
-            glManager.draw(_meshes[i], viewportModelMatrix, _color)
+            glManager.draw(meshes[i], viewportModelMatrix, color)
         }
     }
 
-    fun setScale(factor: Float) {
-        _scale = factor
-        _spacing = GLYPH_SPACING * _scale
-        _glyphWidth = GLYPH_WIDTH * _scale
-        _glyphHeight = GLYPH_HEIGHT * _scale
-        _height = _glyphHeight
-        _width = (_glyphWidth + _spacing) * _meshes.size
+    private fun setTextScale() {
+        scale = TEXT_SCALING
+        _spacing = GLYPH_SPACING * scale
+        _glyphWidth = GLYPH_WIDTH * scale
+        _glyphHeight = GLYPH_HEIGHT * scale
+        height = _glyphHeight
+        width = (_glyphWidth + _spacing) * meshes.size
     }
 }

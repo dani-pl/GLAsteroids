@@ -1,5 +1,6 @@
 package com.danielpl.glasteroids.gamepad
 
+import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
@@ -8,6 +9,7 @@ import com.danielpl.glasteroids.util.Config.isGameOver
 import com.danielpl.glasteroids.util.Config.isLevelSuccessful
 import com.danielpl.glasteroids.util.Config.restart
 
+@SuppressLint("ClickableViewAccessibility")
 class TouchController(view: View) : InputManager(),
     View.OnTouchListener {
     init {
@@ -19,35 +21,35 @@ class TouchController(view: View) : InputManager(),
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         val action = event.actionMasked
-        val id: Int = v.getId()
+        val id: Int = v.id
         if (action == MotionEvent.ACTION_DOWN) {
             // User started pressing a key
             if (id == R.id.keypad_left) {
-                _horizontalFactor -= 1f
+                horizontalFactor -= 1f
             } else if (id == R.id.keypad_right) {
-                _horizontalFactor += 1f
+                horizontalFactor += 1f
             }
             if (id == R.id.keypad_a) {
-                _pressingA = true
+                pressingA = true
             }
             if (id == R.id.keypad_b) {
-                _pressingB = true
+                pressingB = true
             }
-            if(isGameOver || isLevelSuccessful){
+            if (isGameOver || isLevelSuccessful) {
                 restart = true
             }
         } else if (action == MotionEvent.ACTION_UP) {
             // User released a key
             if (id == R.id.keypad_left) {
-                _horizontalFactor += 1f
+                horizontalFactor += 1f
             } else if (id == R.id.keypad_right) {
-                _horizontalFactor -= 1f
+                horizontalFactor -= 1f
             }
             if (id == R.id.keypad_a) {
-                _pressingA = false
+                pressingA = false
             }
             if (id == R.id.keypad_b) {
-                _pressingB = false
+                pressingB = false
             }
         }
         return false

@@ -4,8 +4,22 @@ import android.content.Context
 import com.danielpl.glasteroids.R
 import com.danielpl.glasteroids.entity.Text
 import com.danielpl.glasteroids.GLManager
-import com.danielpl.glasteroids.util.Config.METERS_TO_SHOW_X
-import com.danielpl.glasteroids.util.Config.METERS_TO_SHOW_Y
+import com.danielpl.glasteroids.util.Config.FPS_TEXT_X
+import com.danielpl.glasteroids.util.Config.FPS_TEXT_Y
+import com.danielpl.glasteroids.util.Config.GAME_OVER_TEXT_INSTRUCTIONS_X
+import com.danielpl.glasteroids.util.Config.GAME_OVER_TEXT_INSTRUCTIONS_Y
+import com.danielpl.glasteroids.util.Config.GAME_OVER_TEXT_X
+import com.danielpl.glasteroids.util.Config.GAME_OVER_TEXT_Y
+import com.danielpl.glasteroids.util.Config.LEVEL_COUNTER_TEXT_X
+import com.danielpl.glasteroids.util.Config.LEVEL_COUNTER_TEXT_Y
+import com.danielpl.glasteroids.util.Config.LEVEL_SUCCESSFUL_TEXT_INSTRUCTIONS_X
+import com.danielpl.glasteroids.util.Config.LEVEL_SUCCESSFUL_TEXT_INSTRUCTIONS_Y
+import com.danielpl.glasteroids.util.Config.LEVEL_SUCCESSFUL_TEXT_X
+import com.danielpl.glasteroids.util.Config.LEVEL_SUCCESSFUL_TEXT_Y
+import com.danielpl.glasteroids.util.Config.LIVES_COUNTER_TEXT_X
+import com.danielpl.glasteroids.util.Config.LIVES_COUNTER_TEXT_Y
+import com.danielpl.glasteroids.util.Config.SCORE_COUNTER_TEXT_X
+import com.danielpl.glasteroids.util.Config.SCORE_COUNTER_TEXT_Y
 import com.danielpl.glasteroids.util.Config.isGameOver
 import com.danielpl.glasteroids.util.Config.isLevelSuccessful
 import com.danielpl.glasteroids.util.Config.level
@@ -18,11 +32,11 @@ class RenderHud(
 
     fun showFps(frameTime: Float, viewportMatrix: FloatArray, glManager: GLManager) {
         val fpsCounter = ArrayList<Text>()
-        val mill_per_frame =
+        val millsPerFrame =
             (frameTime * Config.SECOND_IN_NANOSECONDS * Config.NANOSECONDS_TO_MILLISECONDS).toString()
-        val fps_x = METERS_TO_SHOW_X * 0.1f
-        val fps_y = METERS_TO_SHOW_Y * 0.9f
-        fpsCounter.add(Text(context.getString(R.string.fps_counter, mill_per_frame), fps_x, fps_y))
+        val fpsX = FPS_TEXT_X
+        val fpsY = FPS_TEXT_Y
+        fpsCounter.add(Text(context.getString(R.string.fps_counter, millsPerFrame), fpsX, fpsY))
 
         for (t in fpsCounter) {
             t.render(viewportMatrix, glManager)
@@ -34,37 +48,38 @@ class RenderHud(
         val levelCounter = ArrayList<Text>()
         val scoreCounter = ArrayList<Text>()
 
+
         livesCounter.add(
             Text(
                 context.getString(R.string.lives_counter, playerHealth.toString()),
-                METERS_TO_SHOW_X * 0.05f,
-                METERS_TO_SHOW_Y * 0.05f
+                LIVES_COUNTER_TEXT_X,
+                LIVES_COUNTER_TEXT_Y
             )
         )
         levelCounter.add(
             Text(
                 context.getString(R.string.level_counter, level.toString()),
-                METERS_TO_SHOW_X * 0.30f,
-                METERS_TO_SHOW_Y * 0.05f
+                LEVEL_COUNTER_TEXT_X,
+                LEVEL_COUNTER_TEXT_Y
             )
         )
         scoreCounter.add(
             Text(
                 context.getString(R.string.score_counter, score.toString()),
-                METERS_TO_SHOW_X * 0.55f,
-                METERS_TO_SHOW_Y * 0.05f
+                SCORE_COUNTER_TEXT_X,
+                SCORE_COUNTER_TEXT_Y
             )
         )
 
-        for (t in livesCounter){
+        for (t in livesCounter) {
             t.render(viewportMatrix, glManager)
         }
 
-        for (t in scoreCounter){
+        for (t in scoreCounter) {
             t.render(viewportMatrix, glManager)
         }
 
-        for (t in levelCounter){
+        for (t in levelCounter) {
             t.render(viewportMatrix, glManager)
         }
 
@@ -72,7 +87,7 @@ class RenderHud(
 
     fun gameOverOrLevelSuccessful(viewportMatrix: FloatArray, glManager: GLManager) {
 
-        if(isGameOver) {
+        if (isGameOver) {
 
             val gameOver = ArrayList<Text>()
             val gameOverInstructions = ArrayList<Text>()
@@ -80,16 +95,16 @@ class RenderHud(
             gameOver.add(
                 Text(
                     context.getString(R.string.game_over),
-                    METERS_TO_SHOW_X * 0.35f,
-                    METERS_TO_SHOW_Y * 0.4f
+                    GAME_OVER_TEXT_X,
+                    GAME_OVER_TEXT_Y
                 )
             )
 
             gameOverInstructions.add(
                 Text(
                     context.getString(R.string.game_over_instructions),
-                    METERS_TO_SHOW_X * 0.30f,
-                    METERS_TO_SHOW_Y * 0.55f
+                    GAME_OVER_TEXT_INSTRUCTIONS_X,
+                    GAME_OVER_TEXT_INSTRUCTIONS_Y
                 )
             )
 
@@ -101,7 +116,7 @@ class RenderHud(
                 t.render(viewportMatrix, glManager)
             }
 
-        } else if(isLevelSuccessful){
+        } else if (isLevelSuccessful) {
 
             val levelSuccessful = ArrayList<Text>()
             val levelSuccessfulInstructions = ArrayList<Text>()
@@ -109,18 +124,19 @@ class RenderHud(
             levelSuccessful.add(
                 Text(
                     context.getString(R.string.level_successful),
-                    METERS_TO_SHOW_X * 0.35f,
-                    METERS_TO_SHOW_Y * 0.4f
+                    LEVEL_SUCCESSFUL_TEXT_X,
+                    LEVEL_SUCCESSFUL_TEXT_Y
                 )
             )
 
             levelSuccessfulInstructions.add(
                 Text(
                     context.getString(R.string.level_successful_instructions),
-                    METERS_TO_SHOW_X * 0.15f,
-                    METERS_TO_SHOW_Y * 0.55f
+                    LEVEL_SUCCESSFUL_TEXT_INSTRUCTIONS_X,
+                    LEVEL_SUCCESSFUL_TEXT_INSTRUCTIONS_Y
                 )
             )
+
 
             for (t in levelSuccessful) {
                 t.render(viewportMatrix, glManager)

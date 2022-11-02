@@ -8,6 +8,11 @@
     <string name="game_over">GAME OVER!</string>
     <string name="game_over_instructions">SHOOT TO RETRY</string>
     <string name="level_successful">WELL DONE</string>
-    <string name="level_successful_instructions">SHOOT TO START NEXT LEVEL</string>
+    <string name="level_successful_instructions">SHOOT TO START NEXT WAVE</string>
+    <string name="tag_glManager">GLManager</string>
+    <string name="keypad_left">left</string>
+    <string name="keypad_right">right</string>
+    <string name="keypad_b">boost</string>
+    <string name="keypad_a">shoot</string>
 
 </resources>

@@ -14,30 +14,42 @@ import com.danielpl.glasteroids.util.Config.STAR_COUNT
 import com.danielpl.glasteroids.util.Config.WORLD_HEIGHT
 import com.danielpl.glasteroids.util.Config.WORLD_WIDTH
 import com.danielpl.glasteroids.gamepad.InputManager
+import com.danielpl.glasteroids.util.Config.BACKGROUND_COLOR
+import com.danielpl.glasteroids.util.Config.BORDER_FINAL_COORDINATE_X
+import com.danielpl.glasteroids.util.Config.BORDER_FINAL_COORDINATE_Y
+import com.danielpl.glasteroids.util.Config.BORDER_INITIAL_COORDINATE_X
+import com.danielpl.glasteroids.util.Config.BORDER_INITIAL_COORDINATE_Y
 import com.danielpl.glasteroids.util.Config.BREAK_APART_LARGE_ASTEROID
 import com.danielpl.glasteroids.util.Config.BREAK_APART_MEDIUM_ASTEROID
 import com.danielpl.glasteroids.util.Config.BULLET_COUNT_ENEMY
 import com.danielpl.glasteroids.util.Config.BULLET_COUNT_PLAYER
 import com.danielpl.glasteroids.util.Config.DISPLAY_FRAME_COUNTER
+import com.danielpl.glasteroids.util.Config.EGL_CONTEXT_CLIENT_VERSION
+import com.danielpl.glasteroids.util.Config.ENEMY_APPEARANCE_POSSIBILITIES
 import com.danielpl.glasteroids.util.Config.INCREASE_ASTEROIDS_NUMBER
 import com.danielpl.glasteroids.util.Config.INITIAL_ASTEROID_COUNT
+import com.danielpl.glasteroids.util.Config.INITIAL_LEVEL
 import com.danielpl.glasteroids.util.Config.LARGE_ASTEROID_REWARDING_FACTOR
 import com.danielpl.glasteroids.util.Config.MAX_POINTS_ASTEROIDS
 import com.danielpl.glasteroids.util.Config.MEDIUM_ASTEROID_REWARDING_FACTOR
 import com.danielpl.glasteroids.util.Config.MIN_POINTS_ASTEROIDS
+import com.danielpl.glasteroids.util.Config.PLAYER_INITIAL_COORDINATE_X
+import com.danielpl.glasteroids.util.Config.PLAYER_INITIAL_COORDINATE_Y
+import com.danielpl.glasteroids.util.Config.PLAYER_INITIAL_LIVES
+import com.danielpl.glasteroids.util.Config.SAUCER_ENEMY_REWARD
 import com.danielpl.glasteroids.util.Config.SMALL_ASTEROID_REWARDING_FACTOR
 import com.danielpl.glasteroids.util.Config.destroyedAsteroids
+import com.danielpl.glasteroids.util.Config.dt
 import com.danielpl.glasteroids.util.Config.isGameOver
 import com.danielpl.glasteroids.util.Config.isLevelSuccessful
 import com.danielpl.glasteroids.util.Config.level
 import com.danielpl.glasteroids.util.Config.playerHealth
 import com.danielpl.glasteroids.util.Config.restart
 import com.danielpl.glasteroids.util.Config.score
+import com.danielpl.glasteroids.util.Config.thereIsAnEnemy
 import com.danielpl.glasteroids.util.Jukebox
 import com.danielpl.glasteroids.util.RenderHud
 import com.danielpl.glasteroids.util.SFX
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.random.Random
@@ -45,47 +57,44 @@ import kotlin.random.Random
 
 lateinit var engine: Game
 
-@AndroidEntryPoint
+
 class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs),
     GLSurfaceView.Renderer {
-    private val TAG = "Game"
 
+
+    private val glManager = GLManager()
     private val _stars = ArrayList<Star>()
-
     private val assetManager = context.assets
-
     private val renderHud = RenderHud(ctx)
     private var frameTime = 0f
     private var frameCounter = 0
     private var accumulator2 = 0f
     private var oldAverageFPS = 0f
-
-    var jukebox = Jukebox(ctx)
-
-    @Inject
-    lateinit var glManager: GLManager
-
+    private var jukebox = Jukebox(ctx)
     private val _enemies = ArrayList<Enemy>()
-
-
     private val _asteroids = ArrayList<Asteroid>()
     private val _asteroidsToAdd = ArrayList<Asteroid>()
-    private val _texts = ArrayList<Text>()
+    private var _bulletsPlayer = ArrayList<Bullet>(BULLET_COUNT_PLAYER)
+    private var _bulletsEnemy = ArrayList<Bullet>(BULLET_COUNT_ENEMY)
+    private val bgColor = BACKGROUND_COLOR //RGBA
+    private val _player = Player(PLAYER_INITIAL_COORDINATE_X, PLAYER_INITIAL_COORDINATE_Y)
+    private val _border = Border(
+        BORDER_INITIAL_COORDINATE_X,
+        BORDER_INITIAL_COORDINATE_Y,
+        BORDER_FINAL_COORDINATE_X,
+        BORDER_FINAL_COORDINATE_Y
+    )
+    var inputs = InputManager() //empty but valid default
 
-
-    var _bulletsPlayer = ArrayList<Bullet>(BULLET_COUNT_PLAYER)
-    var _bulletsEnemy = ArrayList<Bullet>(BULLET_COUNT_ENEMY)
-
-
-    private val BG_COLOR = floatArrayOf(0f / 255f, 0f / 255f, 84f / 255f, 1f) //RGBA
-    val _player = Player(WORLD_WIDTH / 2, WORLD_HEIGHT / 2f)
-    val _border = Border(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, WORLD_WIDTH, WORLD_HEIGHT)
+    // trying a fixed time-step with accumulator, courtesy of
+    // https://gafferongames.com/post/fix_your_timestep/Links to an external site.
+    private var accumulator = 0.0f
+    private var currentTime = (System.nanoTime() * NANOSECONDS_TO_SECONDS)
 
     // Create the projection Matrix. This is used to project the scene onto a 2D viewport.
     private val _viewportMatrix = FloatArray(4 * 4) //In essence, it is our our Camera
 
     init {
-
         engine = this
         for (i in 0 until STAR_COUNT) {
             val x = Random.nextInt(WORLD_WIDTH.toInt()).toFloat()
@@ -110,32 +119,22 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
         }
 
 
-        val x = Random.nextInt(WORLD_WIDTH.toInt()).toFloat()
-        val y = Random.nextInt(WORLD_HEIGHT.toInt()).toFloat()
-        _enemies.add(Enemy(x,y))
-
-
-        setEGLContextClientVersion(2)
+        setEGLContextClientVersion(EGL_CONTEXT_CLIENT_VERSION)
         setRenderer(this)
     }
 
-
-    var _inputs = InputManager() //empty but valid default
-
     fun setControls(input: InputManager) {
-        _inputs.onPause()
-        _inputs.onStop()
-        _inputs = input
-        _inputs.onResume()
-        _inputs.onStart()
+        inputs.onPause()
+        inputs.onStop()
+        inputs = input
+        inputs.onResume()
+        inputs.onStart()
     }
 
-    fun hexColorToFloat(hex: Int) = hex / 255f
 
     override fun onSurfaceCreated(unused: GL10, p1: EGLConfig) {
         glManager.buildProgram(assetManager) //compile, link and upload our shaders to the GPU
-        GLES20.glClearColor(BG_COLOR[0], BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]) //set clear color
-        //center the player in the world
+        GLES20.glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]) //set clear color
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
@@ -143,13 +142,11 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
         GLES20.glViewport(0, 0, width, height)
     }
 
-    private val dt = 0.01f
     override fun onDrawFrame(unused: GL10?) {
-
         if (restart) {
             restart()
         }
-        update(dt)
+        update()
         render()
     }
 
@@ -160,27 +157,19 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
             INITIAL_ASTEROID_COUNT += INCREASE_ASTEROIDS_NUMBER
             ASTEROID_COUNT = INITIAL_ASTEROID_COUNT
 
-            jukebox.unloadMusic()
-            jukebox.loadMusic()
 
-        } else {
-            // show settings of current shaderCode (stored in shaderCode variable)
         }
         if (isGameOver) {
-            playerHealth = 3
+            playerHealth = PLAYER_INITIAL_LIVES
             score = 0
             // revert shaderCode complexity
             INITIAL_ASTEROID_COUNT -= INCREASE_ASTEROIDS_NUMBER * (level - 1)
             ASTEROID_COUNT = INITIAL_ASTEROID_COUNT
-
-
-            level = 1
+            // come back to first wave
+            level = INITIAL_LEVEL
         }
 
-
-        jukebox.play(SFX.starting)
         destroyedAsteroids = 0
-        jukebox.resumeBgMusic()
         isGameOver = false
         isLevelSuccessful = false
 
@@ -193,15 +182,19 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
                 Asteroid(x, y, Random.nextInt(MIN_POINTS_ASTEROIDS, MAX_POINTS_ASTEROIDS))
             _asteroids.add(asteroid)
         }
+        // eliminate possible enemy
+        _enemies.clear()
+        thereIsAnEnemy = false
+
+        // change Bg Music (level = 1)
+        jukebox.changeBgMusic()
+        jukebox.play(SFX.starting)
 
     }
 
-    //trying a fixed time-step with accumulator, courtesy of
-//   https://gafferongames.com/post/fix_your_timestep/Links to an external site.
-    var accumulator = 0.0f
-    var currentTime = (System.nanoTime() * NANOSECONDS_TO_SECONDS).toFloat()
-    private fun update(dt: Float) {
-        val newTime = (System.nanoTime() * NANOSECONDS_TO_SECONDS).toFloat()
+
+    private fun update() {
+        val newTime = (System.nanoTime() * NANOSECONDS_TO_SECONDS)
         frameTime = newTime - currentTime
         currentTime = newTime
         accumulator += frameTime
@@ -235,9 +228,10 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
 
             _player.update(dt, jukebox)
 
-            for (e in _enemies){
-                e.playerX = _player._x
-                e.playerY = _player._y
+            maybeAddEnemy()
+            for (e in _enemies) {
+                e.playerX = _player.x
+                e.playerY = _player.y
                 e.update(dt, jukebox)
             }
 
@@ -249,6 +243,21 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
 
         checkGameOverOrLevelSuccessful()
 
+    }
+
+    private fun maybeAddEnemy() {
+        if (!thereIsAnEnemy && Random.nextInt(
+                0,
+                ENEMY_APPEARANCE_POSSIBILITIES
+            ) == 0 && !isGameOver && !isLevelSuccessful
+        ) {
+            val x = Random.nextInt(WORLD_WIDTH.toInt()).toFloat()
+            val y = Random.nextInt(WORLD_HEIGHT.toInt()).toFloat()
+            _enemies.add(Enemy(x, y))
+            thereIsAnEnemy = true
+            jukebox.changeBgMusic()
+            ASTEROID_COUNT++
+        }
     }
 
     private fun render() {
@@ -263,12 +272,15 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
         Matrix.orthoM(_viewportMatrix, offset, left, right, bottom, top, near, far)
 
         _border.render(_viewportMatrix, glManager)
+
         for (s in _stars) {
             s.render(_viewportMatrix, glManager)
         }
+
         for (a in _asteroids) {
             a.render(_viewportMatrix, glManager)
         }
+
         _player.render(_viewportMatrix, glManager)
 
         for (b in _bulletsPlayer) {
@@ -285,35 +297,30 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
             b.render(_viewportMatrix, glManager)
         }
 
-
-
-        for (e in _enemies){
-            e.render(_viewportMatrix,glManager)
+        for (e in _enemies) {
+            e.render(_viewportMatrix, glManager)
         }
-
-
-
 
         if (frameCounter == DISPLAY_FRAME_COUNTER) {
             val averageFps = accumulator2 / DISPLAY_FRAME_COUNTER
-            renderHud.showFps(averageFps, _viewportMatrix,glManager)
+            renderHud.showFps(averageFps, _viewportMatrix, glManager)
             frameCounter = 0
             accumulator2 = 0f
             oldAverageFPS = averageFps
         } else {
-            renderHud.showFps(oldAverageFPS, _viewportMatrix,glManager)
+            renderHud.showFps(oldAverageFPS, _viewportMatrix, glManager)
         }
 
         if (!isGameOver && !isLevelSuccessful) {
-            renderHud.showPlayerInfo(_viewportMatrix,glManager)
+            renderHud.showPlayerInfo(_viewportMatrix, glManager)
         } else {
-            renderHud.gameOverOrLevelSuccessful(_viewportMatrix,glManager)
+            renderHud.gameOverOrLevelSuccessful(_viewportMatrix, glManager)
         }
 
 
     }
 
-    fun maybeFireBulletfromPlayer(source: GLEntity): Boolean {
+    fun maybeFireBulletFromPlayer(source: GLEntity): Boolean {
         for (b in _bulletsPlayer) {
             if (b.isDead()) {
                 jukebox.play(SFX.shoot)
@@ -325,7 +332,7 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
         return false
     }
 
-    fun fireBulletfromEnemy(source: GLEntity): Boolean {
+    fun fireBulletFromEnemy(source: GLEntity): Boolean {
         for (b in _bulletsEnemy) {
             if (b.isDead()) {
                 jukebox.play(SFX.shoot)
@@ -370,8 +377,8 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
                             for (i in 0 until BREAK_APART_MEDIUM_ASTEROID) {
                                 _asteroidsToAdd.add(
                                     Asteroid(
-                                        a._x,
-                                        a._y,
+                                        a.x,
+                                        a.y,
                                         Random.nextInt(MIN_POINTS_ASTEROIDS, MAX_POINTS_ASTEROIDS),
                                         type = AsteroidType.SMALL
                                     )
@@ -384,8 +391,8 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
                             for (i in 0 until BREAK_APART_LARGE_ASTEROID) {
                                 _asteroidsToAdd.add(
                                     Asteroid(
-                                        a._x,
-                                        a._y,
+                                        a.x,
+                                        a.y,
                                         Random.nextInt(MIN_POINTS_ASTEROIDS, MAX_POINTS_ASTEROIDS),
                                         type = AsteroidType.MEDIUM
                                     )
@@ -400,6 +407,7 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
 
                 }
             }
+
         }
 
         for (a in _asteroids) {
@@ -412,6 +420,56 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
                 playerHealth--
                 _player.onCollision(a)
                 a.onCollision(_player)
+            }
+        }
+
+
+
+        for (b in _bulletsEnemy) {
+            if (b.isDead()) {
+                continue
+            } //skip dead bullets
+            if (b.isColliding(_player)) {
+                jukebox.play(SFX.explosion)
+                playerHealth--
+                _player.onCollision(b)
+                b.onCollision(_player)
+
+            }
+        }
+
+        for (b in _bulletsPlayer) {
+            if (b.isDead()) {
+                continue
+            }
+            for (e in _enemies) {
+                if (e.isDead()) {
+                    continue
+                } //skip dead enemies
+                if (b.isColliding(e)) {
+                    score += SAUCER_ENEMY_REWARD * level
+                    destroyedAsteroids++
+                    b.onCollision(e)
+                    e.onCollision(b)
+                    thereIsAnEnemy = false
+                    jukebox.changeBgMusic()
+                }
+            }
+
+        }
+
+        for (e in _enemies) {
+            if (e.isDead()) {
+                continue
+            } //skip dead bullets
+            if (_player.isColliding(e)) {
+                jukebox.play(SFX.explosion)
+                playerHealth--
+                destroyedAsteroids++
+                _player.onCollision(e)
+                e.onCollision(_player)
+                thereIsAnEnemy = false
+                jukebox.changeBgMusic()
             }
         }
     }
@@ -435,11 +493,17 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
         }
     }
 
-    fun removeDeadEntities() {
+    private fun removeDeadEntities() {
         val count = _asteroids.size
         for (i in count - 1 downTo 0) {
             if (_asteroids[i].isDead()) {
                 _asteroids.removeAt(i)
+            }
+        }
+        val count2 = _enemies.size
+        for (i in count2 - 1 downTo 0) {
+            if (_enemies[i].isDead()) {
+                _enemies.removeAt(i)
             }
         }
     }
@@ -447,11 +511,11 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
     fun resume() {
         jukebox.play(SFX.starting)
         jukebox.resumeBgMusic()
-        _inputs.onResume()
+        inputs.onResume()
     }
 
     fun pause() {
-        _inputs.onPause()
+        inputs.onPause()
         jukebox.pauseBgMusic()
     }
 
