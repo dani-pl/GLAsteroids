@@ -3,9 +3,10 @@ Author: Daniel Peña López
 Date: October 2022
 
 **G improvements**
--  *G improvement 1:* Sound effects and Background music: I have a total of 6 sound effects and 3 background musics.
+-  *G improvement 1:* Sound effects and Background music
    
-   *Implementation:* The sound effects are: boost, death, explosion, shoot, starting, win. On the other hand, I have
+   *Implementation:* I have a total of 6 sound effects and 3 background musics.
+   The sound effects are: boost, death, explosion, shoot, starting, win. On the other hand, I have
    three background musics: one for odd levels and another one for even levels. The third is used
    when the saucer enemy appears. Then the background music of the level is replaced and the one of
    the saucer enemy starts playing until the enemy is killed.
