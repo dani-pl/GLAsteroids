@@ -102,7 +102,6 @@ class Jukebox(engine: Context) {
             mBgPlayer!!.setVolume(DEFAULT_MUSIC_VOLUME, DEFAULT_MUSIC_VOLUME)
             mBgPlayer!!.prepare()
         } catch (e: IOException) {
-            //Log.e(TAG, "Unable to create MediaPlayer.", e)
         }
     }
 

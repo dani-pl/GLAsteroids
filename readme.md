@@ -1,7 +1,8 @@
 Author: Daniel Peña López
+
 Date: October 2022
 
-** G improvements **
+**G improvements**
 1. Sound effects and Background music: I have a total of 6 sound effects and 3 background musics.
    The sound effects are: boost, death, explosion, shoot, starting, win. On the other hand, I have
    three background musics: one for odd levels and another one for even levels. The third is used
@@ -41,7 +42,7 @@ Date: October 2022
    I have stored the code for both the vertexShaderCode and the FragmentShaderCode. Then, I read the
     content with a BufferedReader.
 
-** VG improvement **
+**VG improvement**
 1. Add the flying saucer enemy from the original game. It appears randomly, flies across the screen
    and shoots towards the player. In my implementation, the saucer enemy moves with a constant value
    that is assigned in the init section (similar to an asteroid). It has the same shape as a player

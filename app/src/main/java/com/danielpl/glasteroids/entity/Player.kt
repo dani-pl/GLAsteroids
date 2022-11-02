@@ -3,12 +3,15 @@ package com.danielpl.glasteroids.entity
 import android.opengl.GLES20
 import com.danielpl.glasteroids.GLManager
 import com.danielpl.glasteroids.engine
+import com.danielpl.glasteroids.util.Config.BOOST_SOUND_DELAY
 import com.danielpl.glasteroids.util.Config.DRAG
+import com.danielpl.glasteroids.util.Config.PLAYER_COLOR
 import com.danielpl.glasteroids.util.Config.PLAYER_HEIGHT
 import com.danielpl.glasteroids.util.Config.PLAYER_WIDTH
 import com.danielpl.glasteroids.util.Config.ROTATION_VELOCITY
+import com.danielpl.glasteroids.util.Config.SHOOTING_COLOR
 import com.danielpl.glasteroids.util.Config.THRUST
-import com.danielpl.glasteroids.util.Config.TIME_BETWEEN_SHOTS
+import com.danielpl.glasteroids.util.Config.TIME_BETWEEN_SHOTS_PLAYER
 import com.danielpl.glasteroids.util.Config.TO_RADIANS
 import com.danielpl.glasteroids.util.Jukebox
 import com.danielpl.glasteroids.util.SFX
@@ -46,7 +49,7 @@ class Player(x: Float, y: Float) : GLEntity() {
                 jukebox.play(SFX.boost)
                 boostSound = false
 
-                fixedRateTimer("boost sound timer", period = 100000, action = {
+                fixedRateTimer("boost sound timer", period = BOOST_SOUND_DELAY.toLong(), action = {
                     boostSound = true
                 })
             }
@@ -56,12 +59,12 @@ class Player(x: Float, y: Float) : GLEntity() {
 
         _bulletCoolDown -= dt
         if (engine.inputs.pressingA && _bulletCoolDown <= 0f) {
-            setColors(1f, 0f, 1f, 1f)
+            setColors(SHOOTING_COLOR[0], SHOOTING_COLOR[1], SHOOTING_COLOR[2], SHOOTING_COLOR[3])
             if (engine.maybeFireBulletFromPlayer(this)) {
-                _bulletCoolDown = TIME_BETWEEN_SHOTS
+                _bulletCoolDown = TIME_BETWEEN_SHOTS_PLAYER
             }
         } else {
-            setColors(1.0f, 1f, 1f, 1f)
+            setColors(PLAYER_COLOR[0], PLAYER_COLOR[1], PLAYER_COLOR[2], PLAYER_COLOR[3])
         }
         super.update(dt, jukebox)
     }

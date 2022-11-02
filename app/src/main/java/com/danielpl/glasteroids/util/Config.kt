@@ -2,7 +2,6 @@ package com.danielpl.glasteroids.util
 
 import android.opengl.GLES20
 import com.danielpl.glasteroids.entity.Mesh
-import com.danielpl.glasteroids.entity.TIME_TO_LIVE
 import kotlin.math.PI
 
 object Config {
@@ -11,21 +10,36 @@ object Config {
     const val WORLD_WIDTH = 160f //all dimensions are in meters
     const val WORLD_HEIGHT = 90f
     const val METERS_TO_SHOW_X = 160f //160m x 90m, the entire game world in view
-    const val METERS_TO_SHOW_Y = 90f //TO DO: calculate to match screen aspect ratio
+    const val METERS_TO_SHOW_Y = 90f
 
     // Time related
     var SECOND_IN_NANOSECONDS: Long = 1000000000
     private var MILLISECOND_IN_NANOSECONDS: Long = 1000000
     var NANOSECONDS_TO_MILLISECONDS = 1.0f / MILLISECOND_IN_NANOSECONDS
     var NANOSECONDS_TO_SECONDS = 1.0f / SECOND_IN_NANOSECONDS
-    const val TIME_BETWEEN_SHOTS = 0.25f //seconds. TO DO: game play setting!
+    const val TIME_BETWEEN_SHOTS_PLAYER = 0.25f
+    const val TIME_BETWEEN_SHOTS_ENEMY = 2f
+    const val INITIAL_BULLET_COOL_DOWN_ENEMY = 5f
+
+    // Speed of entities related
+    var MAX_VEL_ASTEROID_SMALL = 20f
+    var MIN_VEL_ASTEROID_SMALL = -20f
+    var MAX_VEL_ASTEROID_MEDIUM = 15f
+    var MIN_VEL_ASTEROID_MEDIUM = -15f
+    var MAX_VEL_ASTEROID_LARGE = 11f
+    var MIN_VEL_ASTEROID_LARGE = -11f
+    const val ROTATION_VELOCITY = 400f
+    const val THRUST = 8f
+    const val DRAG = 0.1f
+    const val SPEED_BULLET = 120f
+    const val TIME_TO_LIVE_BULLET = 3.0f //seconds
 
     // Number of entities related
     const val STAR_COUNT = 50
     var INITIAL_ASTEROID_COUNT = 1
     var ASTEROID_COUNT = INITIAL_ASTEROID_COUNT
     const val INCREASE_ASTEROIDS_NUMBER = 2
-    const val BULLET_COUNT_PLAYER = (TIME_TO_LIVE / TIME_BETWEEN_SHOTS).toInt() + 1
+    const val BULLET_COUNT_PLAYER = (TIME_TO_LIVE_BULLET / TIME_BETWEEN_SHOTS_PLAYER).toInt() + 1
     const val BULLET_COUNT_ENEMY = 1
     const val BREAK_APART_MEDIUM_ASTEROID = 2
     const val BREAK_APART_LARGE_ASTEROID = 3
@@ -44,28 +58,29 @@ object Config {
     const val BORDER_INITIAL_COORDINATE_Y = WORLD_HEIGHT / 2
     const val BORDER_FINAL_COORDINATE_X = WORLD_WIDTH
     const val BORDER_FINAL_COORDINATE_Y = WORLD_HEIGHT
+    const val ANGLE_DIFFERENCE_WITH_SHOOTING_VERTEX = 3*PI/2
+
 
     // Size of entities related
     const val PLAYER_WIDTH = 8f
     const val PLAYER_HEIGHT = 12f
+    const val ENEMY_WIDTH = PLAYER_WIDTH
+    const val ENEMY_HEIGHT = PLAYER_HEIGHT
+    const val RADIUS_BORDER = 10.0f
+    const val SMALL_ASTEROID_SIZE = 8f
+    const val MEDIUM_ASTEROID_SIZE = 12f
+    const val LARGE_ASTEROID_SIZE = 15f
 
-    // Speed of entities related
-    var MAX_VEL_ASTEROID_SMALL = 20f
-    var MIN_VEL_ASTEROID_SMALL = -20f
-    var MAX_VEL_ASTEROID_MEDIUM = 15f
-    var MIN_VEL_ASTEROID_MEDIUM = -15f
-    var MAX_VEL_ASTEROID_LARGE = 11f
-    var MIN_VEL_ASTEROID_LARGE = -11f
-    const val ROTATION_VELOCITY = 400f
-    const val THRUST = 8f
-    const val DRAG = 0.1f
+    // shape of entities related
+    const val POINTS_BORDER = 4
+    const val MAX_POINTS_ASTEROIDS = 8
+    const val MIN_POINTS_ASTEROIDS = 3
+
 
     // Score related
     const val SMALL_ASTEROID_REWARDING_FACTOR = 3
     const val MEDIUM_ASTEROID_REWARDING_FACTOR = 2
     const val LARGE_ASTEROID_REWARDING_FACTOR = 1
-    const val MAX_POINTS_ASTEROIDS = 8
-    const val MIN_POINTS_ASTEROIDS = 3
     const val SAUCER_ENEMY_REWARD = 100
 
     @Volatile
@@ -74,6 +89,7 @@ object Config {
     // Music related
     const val DEFAULT_MUSIC_VOLUME = 0.6f
     const val MAX_STREAMS = 3
+    const val BOOST_SOUND_DELAY = 100000
 
     // FPS related
     const val DISPLAY_FRAME_COUNTER = 10
@@ -99,6 +115,13 @@ object Config {
     @Volatile
     var restart = false
 
+    // Color related
+    val BACKGROUND_COLOR = floatArrayOf(0f / 255f, 0f / 255f, 84f / 255f, 1f)
+    val ENEMY_COLOR = floatArrayOf(255f / 255f, 0f / 255f, 0f / 255f, 1f)
+    val BORDER_COLOR = floatArrayOf(255f / 255f, 0f / 255f, 0f / 255f, 1f)
+    val SHOOTING_COLOR = floatArrayOf(255f / 255f, 0f / 255f, 1f / 255f, 1f)
+    val PLAYER_COLOR = floatArrayOf(255f / 255f, 255f / 255f, 255f / 255f, 1f)
+
 
     // Other settings
     const val INITIAL_LINE_WIDTH = 10f
@@ -106,7 +129,6 @@ object Config {
     const val TEXT_SCALING = 0.75f
     const val OFFSET = 0 //just to have a name for the parameter
     const val dt = 0.01f
-    val BACKGROUND_COLOR = floatArrayOf(0f / 255f, 0f / 255f, 84f / 255f, 1f)
     const val EGL_CONTEXT_CLIENT_VERSION = 2
     const val SIZE_OF_FLOAT = java.lang.Float.SIZE / java.lang.Byte.SIZE //32bit/8bit = 4 bytes
     const val COORDINATES_PER_VERTEX = 3 //X, Y, Z

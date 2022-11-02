@@ -2,6 +2,9 @@ package com.danielpl.glasteroids.entity
 
 import android.graphics.PointF
 import com.danielpl.glasteroids.GLManager
+import com.danielpl.glasteroids.util.Config.SHOOTING_COLOR
+import com.danielpl.glasteroids.util.Config.SPEED_BULLET
+import com.danielpl.glasteroids.util.Config.TIME_TO_LIVE_BULLET
 import com.danielpl.glasteroids.util.polygonVsPoint
 import com.danielpl.glasteroids.util.Config.TO_RADIANS
 import com.danielpl.glasteroids.util.Jukebox
@@ -9,17 +12,15 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-private val BULLET_MESH =
-    Dot.mesh //reusing the Dot (defined in Star.kt, but available throughout the package)
-const val SPEED = 120f //TO DO: game play settings
-const val TIME_TO_LIVE = 3.0f //seconds
 
 class Bullet : GLEntity() {
-    private var _ttl = TIME_TO_LIVE
+    private var _ttl = TIME_TO_LIVE_BULLET
+    private val bulletMesh =
+        Dot.mesh
 
     init {
-        setColors(1f, 0f, 1f, 1f)
-        mesh = BULLET_MESH //all bullets use the exact same mesh
+        setColors(SHOOTING_COLOR[0], SHOOTING_COLOR[1], SHOOTING_COLOR[2], SHOOTING_COLOR[3])
+        mesh = bulletMesh //all bullets use the exact same mesh
     }
 
     fun fireFrom(source: GLEntity) {
@@ -28,9 +29,9 @@ class Bullet : GLEntity() {
         y = source.y - cos(theta) * (source.height * 0.5f)
         velX = source.velX
         velY = source.velY
-        velX += sin(theta) * SPEED
-        velY -= cos(theta) * SPEED
-        _ttl = TIME_TO_LIVE
+        velX += sin(theta) * SPEED_BULLET
+        velY -= cos(theta) * SPEED_BULLET
+        _ttl = TIME_TO_LIVE_BULLET
     }
 
 
@@ -40,9 +41,9 @@ class Bullet : GLEntity() {
         y = source.y - cos(theta) * (source.height * 0.5f)
         velX = source.velX
         velY = source.velY
-        velX -= sin(theta) * SPEED
-        velY += cos(theta) * SPEED
-        _ttl = TIME_TO_LIVE
+        velX -= sin(theta) * SPEED_BULLET
+        velY += cos(theta) * SPEED_BULLET
+        _ttl = TIME_TO_LIVE_BULLET
     }
 
 
