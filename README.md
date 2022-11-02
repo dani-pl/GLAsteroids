@@ -24,7 +24,7 @@ Date: October 2022
    *Implementation:* The Render HUD class shows all this information on the top of the screen. I have also included methods for the fps 
    counter and the closing waves texts (game over or level successful).
    
--  *G improvement 6* Have 3 distinct asteroids; a small, medium and large. Smaller asteroids are worth more points 
+-  *G improvement 6:* Have 3 distinct asteroids; a small, medium and large. Smaller asteroids are worth more points 
    and move faster. Note: only properties change here, not behavior. So all three asteroids should 
    be implemented as a single class. Let the constructor take the type: "small", "medium", "large" 
    and figure it out from there.
@@ -50,7 +50,7 @@ Date: October 2022
    content with a BufferedReader.
 
 **VG improvements**
--  *VG improvement 1* Add the flying saucer enemy from the original game. It appears randomly, flies across the screen
+-  *VG improvement 1:* Add the flying saucer enemy from the original game. It appears randomly, flies across the screen
    and shoots towards the player.
 
    *Implementation:* In my implementation, the saucer enemy moves with a constant value
@@ -75,10 +75,10 @@ Date: October 2022
    and new asteroids spawn. Each level (or wave) should be more challenging (and more rewarding)
    than the last.
 
--  *VG improvement 3* In each wave, I increment the number of initial asteroids and the number of points for killing
+-  *Implementation* In each wave, I increment the number of initial asteroids and the number of points for killing
    an asteroid or saucer enemy is proportional to the wave number.
    
-3. *Description:* Create a Shader-class that can load GLSL-source code from the filesystem, build a shader 
+3. *VG improvement 3:* Create a Shader-class that can load GLSL-source code from the filesystem, build a shader 
    program and provide an interface for tweaking all of the shader settings, and 
    enabling / disabling the shader. (now you can give each Entity their own Shader
    if you'd like!).
