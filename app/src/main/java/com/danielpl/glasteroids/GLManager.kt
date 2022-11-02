@@ -16,7 +16,10 @@ import java.nio.FloatBuffer
 // Some interfaces are just used with the same parameter value, but the requirements for this
 // VG improvement want interfaces that accept parameter values
 @Suppress("SameParameterValue")
-class GLManager {
+class GLManager(
+    private val filePathVertexShaderCode: String,
+    private val filePathFragmentShaderCode: String
+) {
     private val tag = "GLManager"
 
     //handles to various GL objects:
@@ -51,10 +54,6 @@ class GLManager {
         GLES20.glUseProgram(glProgramHandle)
     }
 
-    private fun disableShader() {
-        GLES20.glDeleteProgram(glProgramHandle)
-    }
-
     private fun checkGLError(func: String?) {
         var error: Int
         while (GLES20.glGetError().also { error = it } != GLES20.GL_NO_ERROR) {
@@ -83,17 +82,25 @@ class GLManager {
         return handle
     }
 
+    // read shader code from text files
+    private fun readTextFile(filePath: String, assetManager: AssetManager): String {
+        try {
+            val inputStream = assetManager.open(filePath)
+            val bufferedReader = BufferedReader(InputStreamReader(inputStream))
+            val shaderCode = bufferedReader.readText()
+            bufferedReader.close()
+
+            return shaderCode
+        } catch (e: Exception){
+            throw Exception(e)
+        }
+    }
+
     fun buildProgram(assetManager: AssetManager) {
 
-        // read shader code from text files
-        val inputStreamVertex = assetManager.open("shaderCode/vertexShaderCode.txt")
-        val bufferedReaderVertex = BufferedReader(InputStreamReader(inputStreamVertex))
 
-        val inputStreamFragment = assetManager.open("shaderCode/fragmentShaderCode.txt")
-        val bufferedReaderFragment = BufferedReader(InputStreamReader(inputStreamFragment))
-
-        val vertexShaderCode = bufferedReaderVertex.readText()
-        val fragmentShaderCode = bufferedReaderFragment.readText()
+        val vertexShaderCode = readTextFile(filePathVertexShaderCode, assetManager)
+        val fragmentShaderCode = readTextFile(filePathFragmentShaderCode, assetManager)
 
         val vertex = compileShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
         val fragment = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
@@ -110,7 +117,6 @@ class GLManager {
 
         //activate the program
         enableShader()
-        disableShader()
 
         setLineWidth(INITIAL_LINE_WIDTH)
         setPointSize(INITIAL_POINT_SIZE)

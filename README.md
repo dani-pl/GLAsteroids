@@ -48,7 +48,7 @@ Date: October 2022
 
    *Implementation:* I access two text files with the assetsManager in which
    I have stored the code for both the vertexShaderCode and the FragmentShaderCode. Then, I read the
-   content with a BufferedReader.
+   content with a BufferedReader. I have created a new function for that purpose.
 
 **VG improvements**
 -  *VG improvement 1:* Add the flying saucer enemy from the original game. It appears randomly, flies across the screen
@@ -87,4 +87,6 @@ Date: October 2022
    *Implementation:* In my implementation, I have converted the GLManager into a class and I have created some
    interfaces that allow me to change the PointSize, LineWidth and ShaderColor. I have also created two interfaces to
    enableShader() and disableShader(). Converting, the GLManager on a class had consequences in other
-   classes, all these consequences were fixed accordingly.
+   classes, all these consequences were fixed accordingly. I have also included two parameters in the
+   constructor of the GLManager which corresponds to the filePath locations of the shaderCode for both
+   the vertex and the fragment code.

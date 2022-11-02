@@ -115,6 +115,11 @@ object Config {
     @Volatile
     var restart = false
 
+
+    // file paths related
+    const val FILEPATH_VERTEX_SHADER_CODE = "shaderCode/vertexShaderCode.txt"
+    const val FILEPATH_FRAGMENT_SHADER_CODE = "shaderCode/fragmentShaderCode.txt"
+
     // Color related
     val BACKGROUND_COLOR = floatArrayOf(0f / 255f, 0f / 255f, 84f / 255f, 1f)
     val ENEMY_COLOR = floatArrayOf(255f / 255f, 0f / 255f, 0f / 255f, 1f)

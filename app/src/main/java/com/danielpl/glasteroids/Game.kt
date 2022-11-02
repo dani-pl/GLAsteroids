@@ -26,6 +26,8 @@ import com.danielpl.glasteroids.util.Config.BULLET_COUNT_PLAYER
 import com.danielpl.glasteroids.util.Config.DISPLAY_FRAME_COUNTER
 import com.danielpl.glasteroids.util.Config.EGL_CONTEXT_CLIENT_VERSION
 import com.danielpl.glasteroids.util.Config.ENEMY_APPEARANCE_POSSIBILITIES
+import com.danielpl.glasteroids.util.Config.FILEPATH_FRAGMENT_SHADER_CODE
+import com.danielpl.glasteroids.util.Config.FILEPATH_VERTEX_SHADER_CODE
 import com.danielpl.glasteroids.util.Config.INCREASE_ASTEROIDS_NUMBER
 import com.danielpl.glasteroids.util.Config.INITIAL_ASTEROID_COUNT
 import com.danielpl.glasteroids.util.Config.INITIAL_LEVEL
@@ -62,7 +64,7 @@ class Game(ctx: Context, attrs: AttributeSet? = null) : GLSurfaceView(ctx, attrs
     GLSurfaceView.Renderer {
 
 
-    private val glManager = GLManager()
+    private val glManager = GLManager(FILEPATH_VERTEX_SHADER_CODE, FILEPATH_FRAGMENT_SHADER_CODE)
     private val _stars = ArrayList<Star>()
     private val assetManager = context.assets
     private val renderHud = RenderHud(ctx)
